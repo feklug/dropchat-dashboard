@@ -42,6 +42,18 @@
     if (wer) wer.textContent = sitzung.user.email ?? '';
   }).catch(() => {});
 
+  // Handy: angetippten Reiter in der wischbaren Leiste ganz sichtbar machen.
+  // Nur die Leiste verschieben, nicht die Seite (deshalb kein scrollIntoView).
+  document.querySelectorAll('[data-dashboard-tab]').forEach((reiter) => {
+    reiter.addEventListener('click', () => {
+      const leiste = reiter.parentElement;
+      const rahmen = leiste.getBoundingClientRect();
+      const r = reiter.getBoundingClientRect();
+      if (r.left < rahmen.left) leiste.scrollLeft -= rahmen.left - r.left + 8;
+      else if (r.right > rahmen.right) leiste.scrollLeft += r.right - rahmen.right + 8;
+    });
+  });
+
   document.getElementById('abmelden')?.addEventListener('click', async () => {
     const { error } = await db.auth.signOut();
     if (error) console.error('[Dashboard] Abmelden fehlgeschlagen:', error);
