@@ -1,0 +1,2414 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="referrer" content="no-referrer" />
+<!-- Nur Supabase und feste CDN-Dateien. Keine fremden Skripte. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src https://cdn.jsdelivr.net; img-src 'self' data:; connect-src https://jxibletvuuodxvbyjlga.supabase.co wss://jxibletvuuodxvbyjlga.supabase.co; base-uri 'none'; form-action 'none'" />
+<title>DropChat Dashboard</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/css/tabler.min.css"
+      integrity="sha384-kz+I4+mczbNiZfLAJMxOlJaZmnbRYhARHNkR2k6tal4gz7OL33/0puDD3SvkiNX9" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.46.0/dist/tabler-icons.min.css"
+      integrity="sha384-ND+q1IVc0KDElX60dZaqKc7Xl9cdxd2PpU2JfVUHcurCkFVtVLFdt9vJfxtHSL3p" crossorigin="anonymous" />
+<style>
+  :root {
+    color-scheme: light;
+    --dashboard-sheet-width: 100%;
+    --surface-1:      #ffffff;
+    --surface-2:      #fbfafe;
+    --surface-3:      #f5f3ff;
+    --page-plane:     #fbfafe;
+    --text-primary:   #1c1917;
+    --text-secondary: #57534e;
+    --text-muted:     #a8a29e;
+    --gridline:       #eeeaf6;
+    --baseline:       #c4b5fd;
+    --border:         rgba(139, 92, 246, 0.16);
+    --border-strong:  #e4e0ed;
+    --shadow:         0 18px 38px rgba(76, 29, 149, 0.08);
+    --series-1:       #8b5cf6; /* Retention */
+    --series-2:       #db2777; /* Verweildauer */
+    --series-3:       #059669; /* Wachstum */
+    --series-4:       #2563eb; /* Internes Marketing */
+    --series-5:       #b45309; /* Externes Marketing */
+    --series-6:       #7c3aed; /* Onboarding */
+    --series-7:       #0f766e; /* Bank Health */
+    --series-8:       #dc2626; /* Drops & Eingänge */
+    --series-9:       #4a3aa7; /* Chat Health */
+    --series-10:      #a16207; /* Inaktivitäts-Trennung, Support-Meldungen */
+    --series-11:      #1d4ed8; /* Schattengruppen: nicht eingeladen */
+    --series-12:      #b45309; /* Bank Health: getrennte Verbindungen */
+    /* finAPI-Kosten: vier Kostentypen in fester Reihenfolge (Palette geprüft) */
+    --kosten-1:       #8b5cf6;
+    --kosten-2:       #a16207;
+    --kosten-3:       #2563eb;
+    --kosten-4:       #059669;
+    --accent-soft:    #f5f3ff;
+    --growth-soft:    #d1fae5;
+    --organic-soft:   #dbeafe;
+    --bonus-soft:     #fef3c7;
+    --onboarding-soft:#ede9fe;
+    --bank-soft:      #ccfbf1;
+    --feed-soft:      #fee2e2;
+    --chat-soft:      #ddd6fe;
+    --finance-soft:   #fef9c3;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --surface-1:      #17131f;
+      --surface-2:      #100d18;
+      --surface-3:      #251b3a;
+      --page-plane:     #0d0a13;
+      --text-primary:   #fbfafc;
+      --text-secondary: #d8d0e7;
+      --text-muted:     #a8a29e;
+      --gridline:       #332844;
+      --baseline:       #6d5e86;
+      --border:         rgba(196, 181, 253, 0.16);
+      --border-strong:  rgba(216, 208, 231, 0.20);
+      --shadow:         0 18px 40px rgba(0, 0, 0, 0.32);
+      --series-1:       #a78bfa;
+      --series-2:       #f472b6;
+      --series-3:       #34d399;
+      --series-4:       #60a5fa;
+      --series-5:       #fbbf24;
+      --series-6:       #c4b5fd;
+      --series-7:       #2dd4bf;
+      --series-8:       #f87171;
+      --series-9:       #9085e9;
+      --series-10:      #d97706;
+      --series-11:      #2563eb;
+      --series-12:      #f59e0b;
+      --kosten-1:       #9474f5;
+      --kosten-2:       #d97706;
+      --kosten-3:       #4a8fee;
+      --kosten-4:       #0fae79;
+      --accent-soft:    rgba(167, 139, 250, 0.18);
+      --growth-soft:    rgba(52, 211, 153, 0.18);
+      --organic-soft:   rgba(96, 165, 250, 0.18);
+      --bonus-soft:     rgba(251, 191, 36, 0.18);
+      --onboarding-soft:rgba(196, 181, 253, 0.20);
+      --bank-soft:      rgba(45, 212, 191, 0.18);
+      --feed-soft:      rgba(248, 113, 113, 0.18);
+      --chat-soft:      rgba(144, 133, 233, 0.20);
+      --finance-soft:   rgba(253, 224, 71, 0.18);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-1:      #17131f;
+    --surface-2:      #100d18;
+    --surface-3:      #251b3a;
+    --page-plane:     #0d0a13;
+    --text-primary:   #fbfafc;
+    --text-secondary: #d8d0e7;
+    --text-muted:     #a8a29e;
+    --gridline:       #332844;
+    --baseline:       #6d5e86;
+    --border:         rgba(196, 181, 253, 0.16);
+    --border-strong:  rgba(216, 208, 231, 0.20);
+    --shadow:         0 18px 40px rgba(0, 0, 0, 0.32);
+    --series-1:       #a78bfa;
+    --series-2:       #f472b6;
+    --series-3:       #34d399;
+    --series-4:       #60a5fa;
+    --series-5:       #fbbf24;
+    --series-6:       #c4b5fd;
+    --series-7:       #2dd4bf;
+    --series-8:       #f87171;
+    --series-9:       #9085e9;
+    --series-10:      #d97706;
+    --series-11:      #2563eb;
+    --series-12:      #f59e0b;
+    --kosten-1:       #9474f5;
+    --kosten-2:       #d97706;
+    --kosten-3:       #4a8fee;
+    --kosten-4:       #0fae79;
+    --accent-soft:    rgba(167, 139, 250, 0.18);
+    --growth-soft:    rgba(52, 211, 153, 0.18);
+    --organic-soft:   rgba(96, 165, 250, 0.18);
+    --bonus-soft:     rgba(251, 191, 36, 0.18);
+    --onboarding-soft:rgba(196, 181, 253, 0.20);
+    --bank-soft:      rgba(45, 212, 191, 0.18);
+    --feed-soft:      rgba(248, 113, 113, 0.18);
+    --chat-soft:      rgba(144, 133, 233, 0.20);
+    --finance-soft:   rgba(253, 224, 71, 0.18);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    margin: 0;
+    background: var(--page-plane);
+    color: var(--text-primary);
+    line-height: 1.45;
+  }
+  .page { max-width: 1160px; margin: 0 auto; padding: 32px 24px 72px; }
+
+  .dashboard-header {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 24px 26px 22px;
+    margin-bottom: 30px;
+  }
+  .dashboard-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .dashboard-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .app-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--series-1);
+    box-shadow: inset 0 -7px 12px rgba(76, 29, 149, 0.22), 0 8px 18px rgba(139, 92, 246, 0.24);
+    flex: 0 0 auto;
+  }
+  .dashboard-header h1 {
+    font-size: 34px;
+    line-height: 1;
+    font-weight: 800;
+    margin: 0;
+  }
+  .dashboard-header p { font-size: 13px; color: var(--text-secondary); margin: 10px 0 0; }
+  .dashboard-header code {
+    font-size: 12px;
+    color: var(--text-primary);
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 6px;
+  }
+  .dashboard-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--gridline);
+  }
+  .dashboard-tab {
+    appearance: none;
+    min-height: 42px;
+    padding: 9px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface-2);
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    justify-content: center;
+    min-width: 0;
+    text-align: center;
+    white-space: nowrap;
+    width: 100%;
+  }
+  .dashboard-tab:hover:not(.active) { background: var(--surface-3); color: var(--text-primary); }
+  .dashboard-tab.active {
+    background: var(--text-primary);
+    border-color: var(--text-primary);
+    color: var(--surface-1);
+  }
+  .dashboard-tab:focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; }
+  .dashboard-sheet[hidden] { display: none; }
+  .dashboard-sheet {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    margin-inline: 0;
+    overflow-x: visible;
+  }
+  .dashboard-sheet > .section-nav,
+  .dashboard-sheet > .dashboard-section,
+  .dashboard-sheet .section-body > *,
+  .chart-grid,
+  .chart-card,
+  .chart-card .card-body,
+  .chart-canvas-wrap,
+  .chart-canvas-wrap-tall,
+  .filter-row,
+  .sheet-grid,
+  .info-panel,
+  .settings-grid,
+  .setting-panel,
+  .subsection,
+  .support-liste {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    align-self: stretch;
+  }
+  .chart-canvas-wrap canvas,
+  .chart-canvas-wrap-tall canvas {
+    display: block;
+    width: 100% !important;
+    max-width: 100%;
+  }
+  .section-nav {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(178px, 1fr));
+    gap: 8px;
+    margin: 0 0 26px;
+  }
+  .section-nav a {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 52px;
+    min-width: 0;
+    padding: 9px 10px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-secondary);
+    font-size: 12.5px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none;
+  }
+  .section-nav a:hover { background: var(--surface-3); color: var(--text-primary); }
+  .section-nav span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 24px;
+    flex: 0 0 28px;
+    border-radius: 8px;
+    background: var(--accent-soft);
+    color: var(--series-1);
+    font-size: 11px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+  .section-nav a:nth-child(2) span { background: var(--growth-soft); color: var(--series-3); }
+  .section-nav a:nth-child(3) span { background: var(--organic-soft); color: var(--series-4); }
+  .section-nav a:nth-child(4) span { background: var(--bonus-soft); color: var(--series-5); }
+  .section-nav a:nth-child(5) span { background: var(--onboarding-soft); color: var(--series-6); }
+  .section-nav a:nth-child(6) span { background: var(--bank-soft); color: var(--series-7); }
+  .section-nav a:nth-child(7) span { background: var(--feed-soft); color: var(--series-8); }
+  .section-nav a:nth-child(8) span { background: var(--chat-soft); color: var(--series-9); }
+  .section-nav a:nth-child(9) span { background: var(--finance-soft); color: var(--series-10); }
+
+  .dashboard-section {
+    --section-color: var(--series-1);
+    --section-soft: var(--accent-soft);
+    position: relative;
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(76, 29, 149, 0.06);
+    margin-bottom: 26px;
+    padding: 24px;
+    scroll-margin-top: 24px;
+  }
+  .dashboard-section::before {
+    content: "";
+    position: absolute;
+    left: 24px;
+    top: 0;
+    width: 92px;
+    height: 3px;
+    border-radius: 0 0 999px 999px;
+    background: var(--section-color);
+  }
+  .section-header {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: flex-start;
+    gap: 14px;
+    cursor: pointer;
+    user-select: none;
+    padding: 0 0 18px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--gridline);
+    border-radius: 8px;
+  }
+  .section-header:focus-visible { outline: 2px solid var(--section-color); outline-offset: 2px; }
+  .section-header .chevron {
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1;
+    margin-top: 8px;
+    transition: transform 0.15s ease; flex-shrink: 0;
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .dashboard-section.collapsed .chevron { transform: rotate(-90deg); }
+  .dashboard-section.collapsed .section-body { display: none; }
+  .dashboard-section.collapsed { padding-bottom: 18px; }
+
+  .section-marker {
+    min-width: 44px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--section-soft);
+    color: var(--section-color);
+    font-size: 12px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+  .dashboard-section[data-section="wachstum"] { --section-color: var(--series-3); --section-soft: var(--growth-soft); }
+  .dashboard-section[data-section="intern"] { --section-color: var(--series-4); --section-soft: var(--organic-soft); }
+  .dashboard-section[data-section="extern"] { --section-color: var(--series-5); --section-soft: var(--bonus-soft); }
+  .dashboard-section[data-section="onboarding"] { --section-color: var(--series-6); --section-soft: var(--onboarding-soft); }
+  .dashboard-section[data-section="bankhealth"] { --section-color: var(--series-7); --section-soft: var(--bank-soft); }
+  .dashboard-section[data-section="drops"] { --section-color: var(--series-8); --section-soft: var(--feed-soft); }
+  .dashboard-section[data-section="chathealth"] { --section-color: var(--series-9); --section-soft: var(--chat-soft); }
+  .dashboard-section[data-section="support-problem"] { --section-color: var(--series-8); --section-soft: var(--feed-soft); }
+  .dashboard-section[data-section="support-hilfe"] { --section-color: var(--series-4); --section-soft: var(--organic-soft); }
+  .dashboard-section[data-section="support-feedback"] { --section-color: var(--series-6); --section-soft: var(--onboarding-soft); }
+  .dashboard-section[data-section="support-meldungen"] { --section-color: var(--series-10); --section-soft: var(--finance-soft); }
+  .dashboard-section[data-section="einstellungen"] { --section-color: var(--series-7); --section-soft: var(--bank-soft); }
+
+  .chart-canvas-wrap-tall { height: 380px; }
+
+  .subsection { margin-top: 30px; padding-top: 22px; border-top: 1px dashed var(--gridline); }
+  .subsection-title { font-size: 17px; font-weight: 800; margin: 0 0 4px; }
+  .subsection-sub { font-size: 13px; color: var(--text-secondary); margin: 0 0 14px; }
+
+  .support-status { width: 100%; margin-bottom: 16px; }
+  .dashboard-section[data-section^="support-"] .section-marker {
+    background: var(--section-soft);
+    border-color: var(--section-soft);
+    color: var(--section-color);
+  }
+  .support-liste { display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px; }
+  .support-eintrag {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 16px;
+  }
+  .support-eintrag-kopf {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+    font-size: 12px; color: var(--text-muted); margin-bottom: 6px; flex-wrap: wrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .support-eintrag-text { font-size: 13.5px; color: var(--text-primary); white-space: pre-wrap; }
+  .support-leer { font-size: 13px; color: var(--text-muted); padding: 8px 0; margin: 0; }
+
+  .support-eintrag.ist-bearbeitet { opacity: 0.55; }
+  .bearbeitet-btn {
+    appearance: none; border: 1px solid var(--border); background: var(--surface-1); color: var(--text-secondary);
+    font: inherit; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 7px;
+    cursor: pointer; margin-top: 10px;
+  }
+  .bearbeitet-btn:hover { background: var(--page-plane); }
+  .bearbeitet-btn:disabled { cursor: default; opacity: 0.6; }
+  .bearbeitet-badge {
+    display: inline-flex; align-items: center; gap: 5px; margin-top: 10px;
+    font-size: 12px; font-weight: 700; color: #0ca30c;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .stat-tile {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+    padding: 16px 20px;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+  .stat-tile .stat-value { font-size: 34px; font-weight: 800; color: var(--section-color); line-height: 1; }
+  .stat-tile .stat-label { font-size: 12.5px; color: var(--text-secondary); }
+  .section-title { font-size: 24px; line-height: 1.1; font-weight: 800; margin: 0 0 6px; }
+  .section-sub { font-size: 14px; color: var(--text-secondary); margin: 0; max-width: 720px; }
+  .section-body {
+    background: transparent;
+    border-radius: 0;
+    min-height: 1px;
+  }
+
+  .select-input {
+    appearance: none; border: 1px solid var(--border); background: var(--surface-1); color: var(--text-primary);
+    font: inherit; font-size: 12.5px; padding: 8px 10px; border-radius: 8px; min-width: 170px;
+  }
+
+  .status-line {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin: 0 0 14px;
+    padding: 9px 12px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .status-line.error { color: #e34948; border-color: rgba(227,73,72,0.35); }
+
+  /* ---- Filter row: eine Zeile, über allem, was sie filtert ---- */
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 18px;
+  }
+  .filter {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 176px;
+    min-height: 82px;
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .filter-label {
+    font-size: 11.5px;
+    font-weight: 750;
+    letter-spacing: 0;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .filter-value { font-size: 12.5px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+
+  /* Segmented control (Seite) */
+  .segmented { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .segmented button {
+    appearance: none; border: none; background: var(--surface-1); color: var(--text-secondary);
+    font: inherit; font-size: 12.5px; padding: 7px 12px; cursor: pointer;
+    border-right: 1px solid var(--border);
+  }
+  .segmented button:last-child { border-right: none; }
+  .segmented button.active { background: var(--section-color); color: #fff; font-weight: 600; }
+  .segmented button:hover:not(.active) { background: var(--page-plane); }
+  /* Unterseiten je Marketing-Instrument (Abschnitte 03/04) */
+  .unterseiten-nav { margin-bottom: 18px; }
+  .unterseite-intro { color: var(--tblr-secondary-color, #667382); margin: 0 0 14px; }
+  .platzhalter {
+    color: var(--tblr-secondary-color, #667382);
+    background: var(--tblr-bg-surface-secondary, #f6f8fb);
+    border: 1px dashed var(--tblr-border-color, #dadfe5);
+    border-radius: var(--tblr-border-radius, 4px);
+    margin: 0;
+    padding: 1.25rem 1rem;
+  }
+
+  /* Slider-Grundgerüst (dual-range + tri-state teilen sich die Optik) */
+  .slider-box { position: relative; height: 30px; width: 200px; }
+  .slider-box input[type="range"] {
+    position: absolute; left: 0; top: 11px; width: 100%; height: 8px; margin: 0;
+    background: none; -webkit-appearance: none; appearance: none; pointer-events: none;
+  }
+  .slider-box input[type="range"]::-webkit-slider-runnable-track { -webkit-appearance: none; height: 8px; background: transparent; }
+  .slider-box input[type="range"]::-moz-range-track { height: 8px; background: transparent; border: none; }
+  .slider-box input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; pointer-events: auto; width: 16px; height: 16px; margin-top: -4px;
+    border-radius: 50%; background: var(--surface-1); border: 2px solid var(--section-color); cursor: pointer;
+    box-shadow: 0 1px 2px var(--border);
+  }
+  .slider-box input[type="range"]::-moz-range-thumb {
+    pointer-events: auto; width: 16px; height: 16px; border-radius: 50%;
+    background: var(--surface-1); border: 2px solid var(--section-color); cursor: pointer;
+    box-shadow: 0 1px 2px var(--border);
+  }
+  .slider-track { position: absolute; left: 0; right: 0; top: 14px; height: 4px; background: var(--gridline); border-radius: 2px; }
+  .slider-fill { position: absolute; top: 14px; height: 4px; background: var(--section-color); border-radius: 2px; }
+  .slider-box input.range-min { z-index: 3; }
+  .slider-box input.range-max { z-index: 4; }
+  .slider-box input.range-min:hover, .slider-box input.range-min:focus { z-index: 5; }
+
+  .tri-ticks { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 2px; width: 200px; }
+  .tri-ticks span.active { color: var(--text-primary); font-weight: 600; }
+
+  /* ---- Charts ---- */
+  .chart-grid { display: flex; flex-direction: column; gap: 18px; }
+  .chart-card {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+    padding: 18px 20px 20px;
+    margin: 0;
+  }
+  .chart-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--gridline);
+  }
+  .chart-card-head h3 { font-size: 16px; line-height: 1.2; font-weight: 800; margin: 0; }
+  .chart-card-head .hint { font-size: 11.5px; color: var(--text-muted); }
+  .table-toggle {
+    appearance: none; border: 1px solid var(--border); background: var(--surface-1); color: var(--text-secondary);
+    font: inherit; font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 7px; cursor: pointer;
+  }
+  .table-toggle:hover { background: var(--page-plane); }
+  .chart-canvas-wrap { height: 260px; }
+
+  .table-view { margin-top: 12px; border-top: 1px solid var(--gridline); padding-top: 10px; }
+  .table-view table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .table-view th, .table-view td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--gridline); font-variant-numeric: tabular-nums; }
+  .table-view th { color: var(--text-muted); font-weight: 600; }
+
+  .sheet-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+  }
+  .info-panel,
+  .setting-panel {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .info-panel h3,
+  .setting-panel h3 {
+    font-size: 15px;
+    line-height: 1.2;
+    font-weight: 800;
+    margin: 0 0 12px;
+  }
+  .info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .info-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    border-top: 1px solid var(--gridline);
+    padding-top: 10px;
+  }
+  .info-row:first-child { border-top: none; padding-top: 0; }
+  .info-key {
+    color: var(--text-muted);
+    font-size: 11.5px;
+    font-weight: 750;
+    text-transform: uppercase;
+  }
+  .info-value {
+    color: var(--text-primary);
+    font-size: 12.5px;
+    text-align: right;
+  }
+  .info-value code,
+  .settings-note code {
+    color: var(--text-primary);
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 6px;
+  }
+  .settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+  }
+  .control-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .control-button {
+    appearance: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface-1);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 750;
+    min-height: 36px;
+    padding: 8px 11px;
+  }
+  .control-button:hover { background: var(--surface-3); color: var(--text-primary); }
+  .settings-note {
+    color: var(--text-secondary);
+    font-size: 12.5px;
+    margin: 12px 0 0;
+  }
+
+  /* ── Blatt "finAPI" → Inaktivitäts-Trennung ──────────────────────── */
+  .dashboard-section[data-section="bonus"] { --section-color: var(--series-5); --section-soft: var(--bonus-soft); }
+  .dashboard-section[data-section="trennung"] { --section-color: var(--series-10); --section-soft: var(--finance-soft); }
+  .dashboard-section[data-section="kosten"] { --section-color: var(--series-7); --section-soft: var(--bank-soft); }
+  .kosten-karten { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+  .kosten-karte { padding: 14px 16px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; }
+  .kosten-karte-kopf { display: flex; align-items: flex-start; gap: 10px; }
+  .kosten-punkt { width: 10px; height: 10px; border-radius: 3px; margin-top: 5px; flex: none; }
+  .kosten-karte-name { font-size: 14px; font-weight: 750; color: var(--text-primary); }
+  .kosten-karte-sub { font-size: 12px; color: var(--text-secondary); }
+  .kosten-karte-betrag { margin-left: auto; font-size: 20px; font-weight: 800; color: var(--text-primary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .kosten-karte-fuer { font-size: 12px; color: var(--text-muted); margin: 2px 0 8px 20px; }
+  .kosten-skala { width: 100%; border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+  .kosten-skala td { padding: 5px 8px; border-bottom: 1px solid var(--gridline); color: var(--text-secondary); }
+  .kosten-skala td:last-child { text-align: right; white-space: nowrap; }
+  .kosten-aktiv td { background: var(--section-soft); color: var(--text-primary); font-weight: 700; }
+  .kosten-hinweis { font-size: 12px; color: var(--text-secondary); margin: 8px 0 0; }
+  .kosten-tabelle-scroll { overflow-x: auto; margin-top: 14px; }
+  .kosten-tabelle { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+  .kosten-tabelle th, .kosten-tabelle td { text-align: right; padding: 8px; border-bottom: 1px solid var(--gridline); white-space: nowrap; }
+  .kosten-tabelle th:first-child, .kosten-tabelle td:first-child { text-align: left; }
+  .kosten-tabelle th { color: var(--text-muted); font-weight: 600; }
+  .aktionen-zeile { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 16px; }
+  .trennung-vorschau { font-size: 12px; color: var(--text-secondary); margin-top: 6px; min-height: 16px; }
+  .trennung-ergebnis { margin-top: 12px; font-size: 13px; }
+  .trennung-ergebnis table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .trennung-ergebnis th, .trennung-ergebnis td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+
+  /* ── Formular-Bausteine (Inaktivitäts-Trennung, Bonus, Promoter) ──── */
+  .alg-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 14px;
+  }
+  .alg-feld {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .alg-label { font-size: 13.5px; font-weight: 750; color: var(--text-primary); }
+  .alg-hint { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
+  .alg-eingabe {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .alg-eingabe input[type="number"] { max-width: 110px; }
+  .alg-eingabe input[type="range"] { flex: 1; min-width: 90px; }
+  .alg-einheit { font-size: 12px; color: var(--text-secondary); white-space: nowrap; }
+  .alg-fenster-leer { font-size: 13px; color: var(--text-muted); margin: 0; }
+
+  /* ── 04 Externes Marketing → Bonus Programm ──────────────────────── */
+  .bon-gruppe-titel { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); margin: 14px 0 8px; }
+  .bon-gruppe-titel:first-of-type { margin-top: 4px; }
+  .bon-unis { display: flex; flex-direction: column; gap: 2px; margin-top: 6px; max-height: 140px; overflow-y: auto; }
+  .bon-unis .form-check { margin: 0; font-size: 13px; }
+
+  /* ── 04 Externes Marketing → Promoter Programm ───────────────────── */
+  .pro-tabelle-scroll { overflow-x: auto; }
+  .pro-tabelle { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .pro-tabelle th, .pro-tabelle td { text-align: left; padding: 8px; border-bottom: 1px solid var(--gridline); vertical-align: middle; font-variant-numeric: tabular-nums; }
+  .pro-tabelle th, .pro-tabelle td { white-space: nowrap; }
+  .pro-tabelle th { color: var(--text-muted); font-weight: 600; }
+  .pro-personen-zeile > td { background: var(--surface-1); padding: 10px 12px 14px; white-space: normal; }
+  .pro-personen-zeile .pro-tabelle { font-size: 12px; }
+  .pro-bearbeiten { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .pro-bearbeiten .alg-feld { background: var(--surface-2, var(--surface-1)); }
+  .pro-feld-zeile { display: flex; gap: 6px; align-items: center; margin-top: 6px; }
+  .pro-feld-zeile input[type="number"] { max-width: 110px; }
+  .pro-iban { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; }
+  .pro-negativ { color: #e34948; }
+
+
+
+
+  @media (max-width: 720px) {
+    .page { padding: 18px 14px 48px; }
+    .dashboard-header { align-items: flex-start; padding: 20px; border-radius: 12px; }
+    .dashboard-section { padding: 18px 16px; border-radius: 14px; }
+    .dashboard-section::before { left: 16px; }
+    .section-header { grid-template-columns: auto 1fr auto; gap: 10px; }
+    .dashboard-title-row { align-items: flex-start; }
+    .dashboard-header h1 { font-size: 28px; }
+    .section-title { font-size: 21px; }
+    .filter { flex: 1 1 100%; }
+    .segmented { width: 100%; }
+    .segmented button { flex: 1; padding-inline: 8px; }
+    .chart-card { padding: 15px 14px 18px; }
+    .chart-card-head { align-items: flex-start; }
+  }
+
+  /* Tabler redesign layer */
+  body {
+    background: var(--tblr-bg-surface-secondary, #f6f8fb);
+    color: var(--tblr-body-color, #182433);
+  }
+  .page {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background: var(--tblr-bg-surface-secondary, #f6f8fb);
+  }
+  .page-body { margin-top: 0; }
+  .dashboard-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--tblr-bg-surface, #fff);
+    border: 0;
+    border-bottom: 1px solid var(--tblr-border-color, #dadfe5);
+    border-radius: 0;
+    box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .03);
+    margin: 0;
+    padding: 14px 0 0;
+  }
+  .dashboard-title-row {
+    max-width: none;
+    width: 100%;
+    margin: 0;
+    padding: 0 24px;
+    flex-wrap: wrap;
+  }
+  .dashboard-brand { min-height: 44px; }
+  .app-mark {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--tblr-border-radius, 4px);
+    background: var(--tblr-primary, #206bc4);
+    box-shadow: 0 .5rem 1rem rgba(32, 107, 196, .18);
+    position: relative;
+  }
+  .app-mark::after {
+    content: "D";
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 800;
+  }
+  .dashboard-header h1 {
+    font-size: 20px;
+    line-height: 1.2;
+    font-weight: 700;
+    color: var(--tblr-body-color, #182433);
+  }
+  .dashboard-header p {
+    color: var(--tblr-secondary-color, #667382);
+    font-size: 12px;
+    margin-top: 2px;
+  }
+  .dashboard-header code,
+  .info-value code,
+  .settings-note code {
+    color: var(--tblr-code-color, #d63384);
+    background: var(--tblr-bg-surface-secondary, #f6f8fb);
+    border-color: var(--tblr-border-color, #dadfe5);
+  }
+  .dashboard-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    max-width: none;
+    width: 100%;
+    margin: 14px 0 0;
+    padding: 0 24px;
+    border-top: 0;
+    gap: 0;
+  }
+  .dashboard-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    background: transparent;
+    color: var(--tblr-secondary-color, #667382);
+    font-size: 14px;
+    font-weight: 600;
+    min-height: 44px;
+    justify-content: center;
+    padding: 10px 16px;
+  }
+  .dashboard-tab:hover:not(.active) {
+    background: rgba(var(--tblr-primary-rgb, 32, 107, 196), .04);
+    color: var(--tblr-primary, #206bc4);
+  }
+  .dashboard-tab.active {
+    color: var(--tblr-primary, #206bc4);
+    background: transparent;
+    border-bottom-color: var(--tblr-primary, #206bc4);
+  }
+  .dashboard-tab:focus-visible {
+    outline: 2px solid rgba(var(--tblr-primary-rgb, 32, 107, 196), .35);
+    outline-offset: -2px;
+  }
+  main {
+    max-width: none;
+    width: 100%;
+    margin: 0;
+    padding: 28px 24px 64px;
+  }
+  .section-nav {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .section-nav a {
+    min-height: 58px;
+    min-width: 0;
+    padding: 12px 14px;
+    background: var(--tblr-card-bg, #fff);
+    border: 1px solid var(--tblr-border-color, #dadfe5);
+    border-radius: var(--tblr-border-radius, 4px);
+    box-shadow: var(--tblr-box-shadow-card, 0 1px 2px 0 rgba(0, 0, 0, .05));
+    color: var(--tblr-body-color, #182433);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  .section-nav a:hover {
+    background: var(--tblr-bg-surface, #fff);
+    border-color: rgba(var(--tblr-primary-rgb, 32, 107, 196), .35);
+    color: var(--tblr-primary, #206bc4);
+    text-decoration: none;
+  }
+  .section-nav span,
+  .section-marker {
+    border-radius: var(--tblr-border-radius, 4px);
+    border: 1px solid rgba(var(--tblr-primary-rgb, 32, 107, 196), .16);
+    background: rgba(var(--tblr-primary-rgb, 32, 107, 196), .08);
+    color: var(--tblr-primary, #206bc4);
+  }
+  .dashboard-section {
+    background: var(--tblr-card-bg, #fff);
+    border: 1px solid var(--tblr-border-color, #dadfe5);
+    border-radius: var(--tblr-border-radius, 4px);
+    box-shadow: var(--tblr-box-shadow-card, 0 1px 2px 0 rgba(0, 0, 0, .05));
+    margin-bottom: 24px;
+    padding: 0;
+    overflow: hidden;
+  }
+  .dashboard-section::before { display: none; }
+  .section-header {
+    grid-template-columns: auto 1fr auto;
+    gap: 14px;
+    align-items: center;
+    margin: 0;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--tblr-border-color, #dadfe5);
+    border-radius: 0;
+    background: var(--tblr-card-bg, #fff);
+  }
+  .section-header:hover { background: var(--tblr-bg-surface-secondary, #f6f8fb); }
+  .section-title {
+    color: var(--tblr-body-color, #182433);
+    font-size: 16px;
+    line-height: 1.25;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .section-sub {
+    color: var(--tblr-secondary-color, #667382);
+    font-size: 12.5px;
+    max-width: 860px;
+  }
+  .section-header .chevron {
+    color: var(--tblr-secondary-color, #667382);
+    margin-top: 0;
+  }
+  .dashboard-section.collapsed { padding-bottom: 0; }
+  .section-body {
+    padding: 20px;
+    background: var(--tblr-card-bg, #fff);
+  }
+  .status-line {
+    margin: 0 0 16px;
+    padding: .75rem 1rem;
+    background: rgba(var(--tblr-primary-rgb, 32, 107, 196), .08);
+    border: 1px solid rgba(var(--tblr-primary-rgb, 32, 107, 196), .18);
+    border-radius: var(--tblr-border-radius, 4px);
+    color: var(--tblr-primary, #206bc4);
+    font-size: 13px;
+  }
+  .status-line.error {
+    color: var(--tblr-danger, #d63939);
+    background: rgba(var(--tblr-danger-rgb, 214, 57, 57), .08);
+    border-color: rgba(var(--tblr-danger-rgb, 214, 57, 57), .22);
+  }
+  .filter-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    background: var(--tblr-bg-surface-secondary, #f6f8fb);
+    border: 1px solid var(--tblr-border-color, #dadfe5);
+    border-radius: var(--tblr-border-radius, 4px);
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+  .filter {
+    min-width: 0;
+    min-height: 84px;
+    background: var(--tblr-card-bg, #fff);
+    border: 1px solid var(--tblr-border-color, #dadfe5);
+    border-radius: var(--tblr-border-radius, 4px);
+    padding: 12px;
+  }
+  .filter-label,
+  .info-key {
+    color: var(--tblr-muted, #667382);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .02em;
+  }
+  .filter-value,
+  .info-value,
+  .settings-note {
+    color: var(--tblr-secondary-color, #667382);
+  }
+  .segmented {
+    border-color: var(--tblr-border-color, #dadfe5);
+    border-radius: var(--tblr-border-radius, 4px);
+  }
+  .segmented button {
+    background: var(--tblr-card-bg, #fff);
+    border-right-color: var(--tblr-border-color, #dadfe5);
+    color: var(--tblr-secondary-color, #667382);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .segmented button.active {
+    background: var(--tblr-primary, #206bc4);
+    color: #fff;
+  }
+  .slider-box input[type="range"]::-webkit-slider-thumb { border-color: var(--tblr-primary, #206bc4); }
+  .slider-box input[type="range"]::-moz-range-thumb { border-color: var(--tblr-primary, #206bc4); }
+  .slider-track { background: var(--tblr-border-color, #dadfe5); }
+  .slider-fill { background: var(--tblr-primary, #206bc4); }
+  .chart-grid { gap: 16px; }
+  .chart-card {
+    background: var(--tblr-card-bg, #fff);
+    border: 1px solid var(--tblr-border-color, #dadfe5);
+    border-radius: var(--tblr-border-radius, 4px);
+    box-shadow: none;
+    padding: 0;
+  }
+  .chart-card-head {
+    margin: 0;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--tblr-border-color, #dadfe5);
+  }
+  .chart-card-head h3 {
+    color: var(--tblr-body-color, #182433);
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .chart-card .chart-canvas-wrap,
+  .chart-card .chart-canvas-wrap-tall {
+    margin: 0;
+    padding: 16px;
+  }
+  .table-toggle,
+  .control-button {
+    border-color: var(--tblr-border-color, #dadfe5);
+    border-radius: var(--tblr-border-radius, 4px);
+    background: var(--tblr-card-bg, #fff);
+    color: var(--tblr-primary, #206bc4);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .table-toggle:hover,
+  .control-button:hover {
+    background: rgba(var(--tblr-primary-rgb, 32, 107, 196), .06);
+    color: var(--tblr-primary, #206bc4);
+  }
+  .table-view {
+    margin: 0 16px 16px;
+    padding-top: 0;
+    border-top: 0;
+    overflow-x: auto;
+  }
+  .table-view table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+  .table-view th,
+  .table-view td {
+    padding: .5rem .75rem;
+    border-bottom: 1px solid var(--tblr-border-color, #dadfe5);
+  }
+  .table-view th {
+    color: var(--tblr-muted, #667382);
+    background: var(--tblr-bg-surface-secondary, #f6f8fb);
+  }
+  .stat-grid,
+  .sheet-grid,
+  .settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+  }
+  .sheet-grid,
+  .settings-grid {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+  .stat-tile,
+  .info-panel,
+  .setting-panel {
+    background: var(--tblr-card-bg, #fff);
+    border: 1px solid var(--tblr-border-color, #dadfe5);
+    border-radius: var(--tblr-border-radius, 4px);
+    box-shadow: none;
+  }
+  .stat-tile {
+    min-height: 86px;
+    padding: 16px;
+    align-items: center;
+  }
+  .stat-tile .stat-value {
+    color: var(--tblr-primary, #206bc4);
+    font-size: 28px;
+    font-weight: 700;
+  }
+  .stat-tile .stat-label {
+    color: var(--tblr-secondary-color, #667382);
+    font-size: 12px;
+  }
+  .info-panel,
+  .setting-panel {
+    padding: 16px;
+    width: 100%;
+    min-width: 0;
+  }
+  .info-panel h3,
+  .setting-panel h3,
+  .subsection-title {
+    color: var(--tblr-body-color, #182433);
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .subsection {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--tblr-border-color, #dadfe5);
+  }
+  .subsection-sub { color: var(--tblr-secondary-color, #667382); }
+  .support-liste {
+    gap: 12px;
+    margin-bottom: 0;
+    width: 100%;
+    min-width: 0;
+  }
+  .support-eintrag {
+    padding: 0;
+    overflow: hidden;
+    background: var(--tblr-card-bg, #fff);
+    border-color: var(--tblr-border-color, #dadfe5);
+    border-radius: var(--tblr-border-radius, 4px);
+  }
+  .support-eintrag-kopf {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    padding: .75rem 1rem;
+    border-bottom: 1px solid var(--tblr-border-color, #dadfe5);
+    color: var(--tblr-secondary-color, #667382);
+    font-size: 12px;
+  }
+  .support-eintrag-text {
+    color: var(--tblr-body-color, #182433);
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 1rem;
+    white-space: pre-wrap;
+  }
+  .support-leer {
+    color: var(--tblr-secondary-color, #667382);
+    background: var(--tblr-bg-surface-secondary, #f6f8fb);
+    border: 1px dashed var(--tblr-border-color, #dadfe5);
+    border-radius: var(--tblr-border-radius, 4px);
+    margin: 0;
+    padding: .75rem 1rem;
+  }
+  .bearbeitet-btn {
+    align-self: flex-start;
+    margin: 0 1rem 1rem;
+  }
+  .bearbeitet-badge {
+    gap: .35rem;
+    align-self: flex-start;
+    margin: 0 1rem 1rem;
+  }
+
+  @media (max-width: 720px) {
+    .page { padding: 0; }
+    .dashboard-header { padding-top: 12px; }
+    .dashboard-title-row,
+    .dashboard-tabs,
+    main { padding-inline: 14px; }
+    main { padding-top: 18px; padding-bottom: 44px; }
+    .dashboard-tab {
+      gap: .3rem;
+      padding-inline: 6px;
+      font-size: 12px;
+    }
+    .section-body { padding: 16px; }
+    .filter-row { grid-template-columns: 1fr; }
+    .chart-card .chart-canvas-wrap,
+    .chart-card .chart-canvas-wrap-tall,
+    .table-view { margin-inline: 12px; }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="dashboard-header">
+      <div class="dashboard-title-row">
+        <div class="dashboard-brand">
+          <span class="app-mark" aria-hidden="true"></span>
+          <div>
+            <h1>DropChat Dashboard</h1>
+            <p>Angemeldet als <span id="angemeldet-als"></span></p>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <button class="btn btn-outline-secondary btn-sm" type="button" id="abmelden">
+            <i class="ti ti-logout me-1" aria-hidden="true"></i>
+            Abmelden
+          </button>
+          <span class="badge bg-green-lt">
+            <i class="ti ti-database me-1" aria-hidden="true"></i>
+            Supabase
+          </span>
+        </div>
+      </div>
+      <nav class="dashboard-tabs nav nav-tabs" role="tablist" aria-label="Dashboard-Blätter">
+        <button class="dashboard-tab nav-link active" type="button" role="tab" id="tab-metriken" aria-controls="metriken" aria-selected="true" data-dashboard-tab="metriken">
+          <i class="ti ti-chart-bar" aria-hidden="true"></i>
+          Metriken (01-07)
+        </button>
+        <button class="dashboard-tab nav-link" type="button" role="tab" id="tab-finapi" aria-controls="finapi" aria-selected="false" data-dashboard-tab="finapi">
+          <i class="ti ti-building-bank" aria-hidden="true"></i>
+          finAPI
+        </button>
+        <button class="dashboard-tab nav-link" type="button" role="tab" id="tab-bonus" aria-controls="bonus" aria-selected="false" data-dashboard-tab="bonus">
+          <i class="ti ti-gift" aria-hidden="true"></i>
+          Bonusprogramm
+        </button>
+        <button class="dashboard-tab nav-link" type="button" role="tab" id="tab-support" aria-controls="support" aria-selected="false" data-dashboard-tab="support">
+          <i class="ti ti-help-circle" aria-hidden="true"></i>
+          Support
+        </button>
+        <button class="dashboard-tab nav-link" type="button" role="tab" id="tab-einstellungen" aria-controls="einstellungen" aria-selected="false" data-dashboard-tab="einstellungen">
+          <i class="ti ti-settings" aria-hidden="true"></i>
+          Einstellungen
+        </button>
+      </nav>
+    </div>
+
+    <main>
+      <div class="dashboard-sheet active" data-dashboard-sheet="metriken" id="metriken" role="tabpanel" aria-labelledby="tab-metriken">
+        <section class="dashboard-section card collapsed" data-section="retention" id="retention">
+      <div class="section-header" role="button" tabindex="0" aria-expanded="false" data-toggle-section>
+        <span class="section-marker badge">01</span>
+        <div>
+          <h2 class="section-title">Retention</h2>
+          <p class="section-sub">Öffnungen &amp; aktive Verweildauer</p>
+        </div>
+        <span class="chevron" aria-hidden="true">▾</span>
+      </div>
+
+      <div class="section-body">
+        <div id="status-retention" class="alert alert-info status-line">Lade Daten…</div>
+        <p id="tracking-aktualisierung" class="section-sub" role="status"></p>
+
+        <div class="filter-row">
+          <div class="filter">
+            <span class="filter-label">Zeitraum</span>
+            <div class="segmented btn-group" id="f-tracking-modus" role="group" aria-label="Zeitraum">
+              <button type="button" data-value="kalender" class="btn btn-sm active" aria-pressed="true">Kalendertage</button>
+              <button type="button" data-value="kohorte" class="btn btn-sm" aria-pressed="false">Seit Registrierung</button>
+            </div>
+          </div>
+          <div class="filter">
+            <span class="filter-label">Durchschnitt pro</span>
+            <div class="segmented btn-group" id="f-tracking-nenner" role="group" aria-label="Durchschnitt pro">
+              <button type="button" data-value="alle" class="btn btn-sm active" aria-pressed="true">Registrierte Nutzer</button>
+              <button type="button" data-value="aktiv" class="btn btn-sm" aria-pressed="false">Aktive Nutzer</button>
+            </div>
+          </div>
+          <div class="filter">
+            <span class="filter-label">Seite</span>
+            <div class="segmented btn-group" id="f-screen" role="group">
+              <button type="button" data-value="app" class="btn btn-sm active">App</button>
+              <button type="button" data-value="chat" class="btn btn-sm">Chat</button>
+              <button type="button" data-value="statistiken" class="btn btn-sm">Statistiken</button>
+            </div>
+          </div>
+
+          <div class="filter">
+            <span class="filter-label">Bank Connection</span>
+            <div class="slider-box" id="f-bank" style="width:120px"></div>
+            <div class="tri-ticks" id="f-bank-ticks" style="width:120px">
+              <span data-value="alle">Alle</span><span data-value="an">An</span><span data-value="aus">Aus</span>
+            </div>
+          </div>
+
+          <div class="filter">
+            <span class="filter-label">Anzahl Chats</span>
+            <div class="slider-box" id="f-chats"></div>
+            <span class="filter-value" id="f-chats-readout">–</span>
+          </div>
+
+          <div class="filter">
+            <span class="filter-label">Quelle</span>
+            <select class="form-select select-input" id="f-quelle">
+              <option value="alle">Alle</option>
+              <option value="bonus">Bonusgruppe</option>
+              <option value="promoter">Promoter</option>
+              <option value="schattengruppe">Schattengruppe</option>
+              <option value="schattenchat">Schattenchat</option>
+              <option value="sonstiges">Sonstiges</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="chart-grid">
+          <figure class="chart-card card">
+            <div class="card-header chart-card-head">
+              <h3 class="card-title">Öffnungen / Nutzer</h3>
+              <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-oeffnungen"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
+            </div>
+            <div class="card-body chart-canvas-wrap"><canvas id="chart-oeffnungen"></canvas></div>
+            <div class="table-view" id="table-oeffnungen" hidden></div>
+          </figure>
+
+          <figure class="chart-card card">
+            <div class="card-header chart-card-head">
+              <h3 class="card-title">Verweildauer / Nutzer (Minuten)</h3>
+              <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-minuten"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
+            </div>
+            <div class="card-body chart-canvas-wrap"><canvas id="chart-minuten"></canvas></div>
+            <div class="table-view" id="table-minuten" hidden></div>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="dashboard-section card collapsed" data-section="wachstum" id="wachstum">
+      <div class="section-header" role="button" tabindex="0" aria-expanded="false" data-toggle-section>
+        <span class="section-marker badge">02</span>
+        <div>
+          <h2 class="section-title">Wachstum</h2>
+          <p class="section-sub">Neue Registrierungen pro Tag seit der allerersten Registrierung</p>
+        </div>
+        <span class="chevron" aria-hidden="true">▾</span>
+      </div>
+
+      <div class="section-body">
+        <div id="status-wachstum" class="alert alert-info status-line">Lade Daten…</div>
+
+        <div class="filter-row">
+          <div class="filter">
+            <span class="filter-label">Bank Connection</span>
+            <div class="slider-box" id="f2-bank" style="width:120px"></div>
+            <div class="tri-ticks" id="f2-bank-ticks" style="width:120px">
+              <span data-value="alle">Alle</span><span data-value="an">An</span><span data-value="aus">Aus</span>
+            </div>
+          </div>
+
+          <div class="filter">
+            <span class="filter-label">Anzahl Chats</span>
+            <div class="slider-box" id="f2-chats"></div>
+            <span class="filter-value" id="f2-chats-readout">–</span>
+          </div>
+
+          <div class="filter">
+            <span class="filter-label">Universität</span>
+            <select class="form-select select-input" id="f2-uni">
+              <option value="alle">Alle</option>
+            </select>
+          </div>
+
+          <div class="filter">
+            <span class="filter-label">Quelle</span>
+            <select class="form-select select-input" id="f2-quelle">
+              <option value="alle">Alle</option>
+              <option value="bonus">Bonusgruppe</option>
+              <option value="promoter">Promoter</option>
+              <option value="schattengruppe">Schattengruppe</option>
+              <option value="schattenchat">Schattenchat</option>
+              <option value="sonstiges">Sonstiges</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="chart-grid">
+          <figure class="chart-card card">
+            <div class="card-header chart-card-head">
+              <h3 class="card-title">Neue Nutzer / Tag</h3>
+              <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-wachstum"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
+            </div>
+            <div class="card-body chart-canvas-wrap"><canvas id="chart-wachstum"></canvas></div>
+            <div class="table-view" id="table-wachstum" hidden></div>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="dashboard-section card collapsed" data-section="intern" id="intern">
+      <div class="section-header" role="button" tabindex="0" aria-expanded="false" data-toggle-section>
+        <span class="section-marker badge">03</span>
+        <div>
+          <h2 class="section-title">Internes Marketing</h2>
+          <p class="section-sub">Wachstum aus der Nutzerbasis heraus: Invite Loop</p>
+        </div>
+        <span class="chevron" aria-hidden="true">▾</span>
+      </div>
+
+      <div class="section-body">
+        <div class="segmented btn-group unterseiten-nav" data-unterseiten="intern" role="group" aria-label="Instrumente">
+          <button type="button" data-unterseite-ziel="gesamt" class="btn btn-sm active" aria-pressed="true">Gesamt</button>
+          <button type="button" data-unterseite-ziel="freunde" class="btn btn-sm" aria-pressed="false">Chats</button>
+          <button type="button" data-unterseite-ziel="schattengruppen" class="btn btn-sm" aria-pressed="false">Gruppen</button>
+          <button type="button" data-unterseite-ziel="einladen" class="btn btn-sm" aria-pressed="false">Einladen-Button</button>
+        </div>
+
+        <!-- Gesamt: Trägt das Netzwerk? (dashboard/sql/kontakte_bei_registrierung.sql) -->
+        <div class="unterseite" data-unterseite="gesamt">
+          <p class="unterseite-intro">Neue Nutzer finden Freunde vor: wie viele ihrer Kontakte beim Registrieren schon DropChat hatten – das deutlichste Zeichen, dass das Netzwerk trägt. Gemessen beim ersten Kontaktabgleich in den ersten 3 Tagen, nur die Anzahl.</p>
+          <div id="status-vorfinden" class="alert alert-info status-line">Lade Daten…</div>
+
+          <div class="stat-grid compact">
+            <div class="stat-tile card">
+              <span class="stat-value" id="stat-vorfinden-mind1">–</span>
+              <span class="stat-label" id="stat-vorfinden-mind1-label">finden mindestens 1 Kontakt in der App vor</span>
+            </div>
+            <div class="stat-tile card">
+              <span class="stat-value" id="stat-vorfinden-gemessen">–</span>
+              <span class="stat-label">Neuanmeldungen gemessen</span>
+            </div>
+            <div class="stat-tile card">
+              <span class="stat-value" id="stat-vorfinden-ohne">–</span>
+              <span class="stat-label">Neuanmeldungen ohne Messung (keine Kontaktfreigabe)</span>
+            </div>
+          </div>
+
+          <div class="chart-grid">
+            <figure class="chart-card card">
+              <div class="card-header chart-card-head">
+                <h3 class="card-title">Kontakte in der App beim Registrieren</h3>
+                <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-vorfinden"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
+              </div>
+              <div class="card-body chart-canvas-wrap"><canvas id="chart-vorfinden"></canvas></div>
+              <div class="table-view" id="table-vorfinden" hidden></div>
+            </figure>
+          </div>
+        </div>
+
+        <div class="unterseite" data-unterseite="freunde" hidden>
+          <p class="unterseite-intro">Gestartete Einzelchats pro Nutzer pro Tag seit Registrierung. Schattenchat = beim Start hatte mindestens ein Mitglied kein Konto.</p>
+          <div id="status-organisch" class="alert alert-info status-line">Lade Daten…</div>
+
+          <div class="stat-grid compact">
+            <div class="stat-tile card"><span class="stat-value" id="stat-chats-organisch">–</span><span class="stat-label" id="stat-chats-organisch-label">Organic Count: Schattenchats, die zu normalen Chats wurden</span></div>
+          </div>
+
+          <div class="filter-row">
+            <div class="filter">
+              <span class="filter-label">Chats</span>
+              <div class="segmented btn-group" id="f3-schatten" role="group">
+                <button type="button" data-value="alle" class="btn btn-sm active">Alle</button>
+                <button type="button" data-value="schatten" class="btn btn-sm">Schattenchats</button>
+              </div>
+            </div>
+            <div class="filter">
+              <span class="filter-label">Quelle</span>
+              <div class="segmented btn-group" id="f3-quelle" role="group">
+                <button type="button" data-value="alle" class="btn btn-sm active">Alle</button>
+                <button type="button" data-value="suche" class="btn btn-sm">Suche</button>
+                <button type="button" data-value="vorschlaege" class="btn btn-sm">Vorschläge</button>
+                <button type="button" data-value="kontakte" class="btn btn-sm">Kontakte</button>
+                <button type="button" data-value="nummer" class="btn btn-sm">Nummer</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-grid">
+            <figure class="chart-card card">
+              <div class="card-header chart-card-head">
+                <h3 class="card-title">Gestartete Chats / Nutzer</h3>
+                <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-organisch"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
+              </div>
+              <div class="card-body chart-canvas-wrap"><canvas id="chart-organisch"></canvas></div>
+              <div class="table-view" id="table-organisch" hidden></div>
+            </figure>
+          </div>
+        </div>
+
+        <div class="unterseite" data-unterseite="schattengruppen" hidden>
+          <p class="unterseite-intro">Gestartete Gruppen pro Nutzer pro Tag seit Registrierung. Schattengruppe = beim Start hatte mindestens ein Mitglied kein Konto.</p>
+          <div id="status-gruppen" class="alert alert-info status-line">Lade Daten…</div>
+
+          <div class="stat-grid compact">
+            <div class="stat-tile card"><span class="stat-value" id="stat-gruppen-organisch">–</span><span class="stat-label" id="stat-gruppen-organisch-label">Organic Count: Schattengruppen, die zu normalen Gruppen wurden</span></div>
+          </div>
+
+          <div class="filter-row">
+            <div class="filter">
+              <span class="filter-label">Gruppen</span>
+              <div class="segmented btn-group" id="f3-gruppen-schatten" role="group">
+                <button type="button" data-value="alle" class="btn btn-sm active">Alle</button>
+                <button type="button" data-value="schatten" class="btn btn-sm">Schattengruppen</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-grid">
+            <figure class="chart-card card">
+              <div class="card-header chart-card-head">
+                <h3 class="card-title">Gestartete Gruppen / Nutzer</h3>
+                <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-gruppen"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
+              </div>
+              <div class="card-body chart-canvas-wrap"><canvas id="chart-gruppen"></canvas></div>
+              <div class="table-view" id="table-gruppen" hidden></div>
+            </figure>
+          </div>
+        </div>
+
+        <div class="unterseite" data-unterseite="einladen" hidden>
+          <p class="unterseite-intro">Über den „Einladen"-Button versendet (einladung_gesendet) – geöffnet/Downloads folgen später, sobald es einen echten Einladungslink gibt</p>
+
+          <div class="chart-grid">
+            <figure class="chart-card card">
+              <div class="card-header chart-card-head">
+                <h3 class="card-title">Einladungen versendet / Nutzer</h3>
+                <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-einladungen"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
+              </div>
+              <div class="card-body chart-canvas-wrap"><canvas id="chart-einladungen"></canvas></div>
+              <div class="table-view" id="table-einladungen" hidden></div>
+            </figure>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="dashboard-section card collapsed" data-section="extern" id="extern">
+      <div class="section-header" role="button" tabindex="0" aria-expanded="false" data-toggle-section>
+        <span class="section-marker badge">04</span>
+        <div>
+          <h2 class="section-title">Externes Marketing</h2>
+          <p class="section-sub">Promoter Programm</p>
+        </div>
+        <span class="chevron" aria-hidden="true">▾</span>
+      </div>
+
+      <div class="section-body">
+        <!-- Promoter Programm (dashboard/sql/promoter_programm.sql): Promoter =
+             erlaubter Einladungscode. Geworbene Personen und Beträge kommen aus
+             promoter_uebersicht(), live nach aktuellem Status berechnet. -->
+        <div class="unterseite" data-unterseite="promoter">
+          <p class="unterseite-intro">Einladungscode bei der Registrierung (Schritt „Dein Profil“). Tabellen promoter, promoter_werbung, promoter_preise.</p>
+          <div id="pro-status" class="alert alert-info status-line">Lade Promoter Programm…</div>
+
+          <div class="aktionen-zeile" style="margin-top:0;margin-bottom:14px;">
+            <label class="form-check form-switch" style="margin:0;">
+              <input class="form-check-input" type="checkbox" id="pro-programm-aktiv" />
+              <span class="form-check-label"><strong>Programm</strong> <span id="pro-programm-text">–</span></span>
+            </label>
+            <span class="settings-note" id="pro-programm-hinweis" style="margin:0;">Aus: kein Feld „Einladungscode“ bei der Registrierung, Codes gelten nicht.</span>
+          </div>
+
+          <div class="stat-grid compact">
+            <div class="stat-tile card"><span class="stat-value" id="pro-zahl-promoter">–</span><span class="stat-label" id="pro-zahl-promoter-label">aktive Promoter</span></div>
+            <div class="stat-tile card"><span class="stat-value" id="pro-zahl-geworben">–</span><span class="stat-label">geworbene Personen</span></div>
+            <div class="stat-tile card"><span class="stat-value" id="pro-zahl-uni">–</span><span class="stat-label">davon jemals Uni verbunden</span></div>
+            <div class="stat-tile card"><span class="stat-value" id="pro-zahl-bank">–</span><span class="stat-label">davon jemals Bank verbunden</span></div>
+            <div class="stat-tile card"><span class="stat-value" id="pro-zahl-beides">–</span><span class="stat-label">davon beides</span></div>
+          </div>
+          <div class="stat-grid compact">
+            <div class="stat-tile card"><span class="stat-value" id="pro-zahl-summe">–</span><span class="stat-label">gesamt erwirtschaftet</span></div>
+            <div class="stat-tile card"><span class="stat-value" id="pro-zahl-ausbezahlt">–</span><span class="stat-label">ausbezahlt</span></div>
+            <div class="stat-tile card"><span class="stat-value" id="pro-zahl-offen">–</span><span class="stat-label">offen</span></div>
+          </div>
+          <div class="aktionen-zeile">
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="pro-neu-laden"><i class="ti ti-refresh me-1" aria-hidden="true"></i>Neu laden</button>
+            <span class="settings-note" style="margin:0;">Beträge nach dem, was die Person jemals erreicht hat: Trennt sie später Uni oder Bank oder löscht ihr Konto, bleibt der Betrag.</span>
+          </div>
+
+          <div class="subsection">
+            <h3 class="subsection-title">Preise</h3>
+            <p class="subsection-sub">Pro geworbener Person. Änderungen gelten nur für <strong>neue</strong> Einlösungen – bereits Geworbene behalten den Preis von damals.</p>
+            <div class="alg-grid">
+              <label class="alg-feld">
+                <span class="alg-label">Registriert</span>
+                <span class="alg-hint">Nur Telefon verifiziert</span>
+                <span class="alg-eingabe">
+                  <input type="number" class="form-control form-control-sm" id="pro-preis-registriert" min="0" max="100" step="0.01" />
+                  <span class="alg-einheit">€</span>
+                </span>
+              </label>
+              <label class="alg-feld">
+                <span class="alg-label">+ Uni verbunden</span>
+                <span class="alg-hint">Uni verifiziert, keine Bank</span>
+                <span class="alg-eingabe">
+                  <input type="number" class="form-control form-control-sm" id="pro-preis-uni" min="0" max="100" step="0.01" />
+                  <span class="alg-einheit">€</span>
+                </span>
+              </label>
+              <label class="alg-feld">
+                <span class="alg-label">+ Bank verbunden</span>
+                <span class="alg-hint">Bank verbunden, keine Uni</span>
+                <span class="alg-eingabe">
+                  <input type="number" class="form-control form-control-sm" id="pro-preis-bank" min="0" max="100" step="0.01" />
+                  <span class="alg-einheit">€</span>
+                </span>
+              </label>
+              <label class="alg-feld">
+                <span class="alg-label">+ Uni + Bank</span>
+                <span class="alg-hint">Beides erledigt</span>
+                <span class="alg-eingabe">
+                  <input type="number" class="form-control form-control-sm" id="pro-preis-uni-bank" min="0" max="100" step="0.01" />
+                  <span class="alg-einheit">€</span>
+                </span>
+              </label>
+            </div>
+            <div class="aktionen-zeile">
+              <button type="button" class="btn btn-primary btn-sm" id="pro-preise-speichern">Preise speichern</button>
+              <span class="settings-note" id="pro-preise-hinweis" style="margin:0;"></span>
+            </div>
+          </div>
+
+          <div class="subsection">
+            <h3 class="subsection-title">Promoter hinzufügen</h3>
+            <p class="subsection-sub">Der Code wird in der App bei der Registrierung eingegeben (Groß-/Kleinschreibung egal).</p>
+            <div class="alg-grid">
+              <label class="alg-feld">
+                <span class="alg-label">Name</span>
+                <span class="alg-hint">Intern, für Übersicht und Auszahlung</span>
+                <span class="alg-eingabe">
+                  <input type="text" class="form-control form-control-sm" id="pro-neu-name" maxlength="80" />
+                </span>
+              </label>
+              <label class="alg-feld">
+                <span class="alg-label">Code</span>
+                <span class="alg-hint">3–20 Buchstaben oder Ziffern, z. B. LISA5</span>
+                <span class="alg-eingabe">
+                  <input type="text" class="form-control form-control-sm" id="pro-neu-code" maxlength="20" style="text-transform:uppercase;" />
+                </span>
+              </label>
+              <label class="alg-feld">
+                <span class="alg-label">Maximales Limit</span>
+                <span class="alg-hint">Höchstzahl geworbener Personen – danach ist der Code ungültig</span>
+                <span class="alg-eingabe">
+                  <input type="number" class="form-control form-control-sm" id="pro-neu-limit" min="1" step="1" value="50" />
+                  <span class="alg-einheit">Personen</span>
+                </span>
+              </label>
+              <label class="alg-feld">
+                <span class="alg-label">IBAN</span>
+                <span class="alg-hint">Wohin ausbezahlt wird – Prüfziffer wird kontrolliert</span>
+                <span class="alg-eingabe">
+                  <input type="text" class="form-control form-control-sm" id="pro-neu-iban" maxlength="42" autocomplete="off" spellcheck="false" placeholder="AT61 1904 3002 3457 3201" />
+                </span>
+              </label>
+            </div>
+            <div class="aktionen-zeile">
+              <button type="button" class="btn btn-primary btn-sm" id="pro-neu-anlegen"><i class="ti ti-user-plus me-1" aria-hidden="true"></i>Promoter anlegen</button>
+              <span class="settings-note" id="pro-neu-hinweis" style="margin:0;"></span>
+            </div>
+          </div>
+
+          <div class="subsection">
+            <h3 class="subsection-title">Promoter &amp; geworbene Personen</h3>
+            <p class="subsection-sub">„Details“ klappt Limit, IBAN, Auszahlung und die Liste aller über diesen Code Geworbenen auf. Offen = erwirtschaftet − ausbezahlt; negativ nur, wenn mehr als ausbezahlt eingetragen ist, als erwirtschaftet wurde.</p>
+            <div id="pro-liste"></div>
+            <p class="settings-note" id="pro-liste-hinweis"></p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="dashboard-section card collapsed" data-section="onboarding" id="onboarding">
+      <div class="section-header" role="button" tabindex="0" aria-expanded="false" data-toggle-section>
+        <span class="section-marker badge">05</span>
+        <div>
+          <h2 class="section-title">Onboarding</h2>
+          <p class="section-sub">Funnel „Registrieren Teil 1" – wie viele Personen erreichen jeden Schritt (gezählt über anonyme Geräte-ID, nicht erst ab Login)</p>
+        </div>
+        <span class="chevron" aria-hidden="true">▾</span>
+      </div>
+
+      <div class="section-body">
+        <div id="status-onboarding" class="alert alert-info status-line">Lade Daten…</div>
+
+        <div class="chart-grid">
+          <figure class="chart-card card">
+            <div class="card-header chart-card-head">
+              <h3 class="card-title">Funnel – Registrieren Teil 1</h3>
+              <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-onboarding"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
+            </div>
+            <div class="card-body chart-canvas-wrap-tall"><canvas id="chart-onboarding"></canvas></div>
+            <div class="table-view" id="table-onboarding" hidden></div>
+          </figure>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection-title">Freigaben und Benachrichtigungen</h3>
+          <p class="subsection-sub">account.kontakte_zugriff und account.mitteilungen_zugriff (OS-Berechtigungen), notification_settings (Einstellung pro Typ)</p>
+
+          <div class="stat-grid compact">
+            <div class="stat-tile card">
+              <span class="stat-value" id="stat-kontakte-freigegeben">–</span>
+              <span class="stat-label">der Nutzer haben Kontakte freigegeben</span>
+            </div>
+            <div class="stat-tile card">
+              <span class="stat-value" id="stat-mitteilungen-freigegeben">–</span>
+              <span class="stat-label">der Nutzer haben Mitteilungen freigegeben</span>
+            </div>
+            <div class="stat-tile card">
+              <span class="stat-value" id="stat-benachrichtigungen-aktiviert">–</span>
+              <span class="stat-label">der Nutzer haben Benachrichtigungen aktiviert</span>
+            </div>
+          </div>
+
+          <div class="chart-grid">
+            <figure class="chart-card card">
+              <div class="card-header chart-card-head">
+                <h3 class="card-title">Aktivierungsrate pro Benachrichtigungstyp</h3>
+                <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-benachrichtigungen"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
+              </div>
+              <div class="card-body chart-canvas-wrap-tall"><canvas id="chart-benachrichtigungen"></canvas></div>
+              <div class="table-view" id="table-benachrichtigungen" hidden></div>
+            </figure>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="dashboard-section card collapsed" data-section="drops" id="drops">
+      <div class="section-header" role="button" tabindex="0" aria-expanded="false" data-toggle-section>
+        <span class="section-marker badge">06</span>
+        <div>
+          <h2 class="section-title">Drops &amp; Eingänge</h2>
+          <p class="section-sub">Was Nutzer aus ihren Drops machen und wie gut Eingänge zugeordnet werden (drops, eingang). Gelöschte zählen nur bei „gelöscht“ mit.</p>
+        </div>
+        <span class="chevron" aria-hidden="true">▾</span>
+      </div>
+
+      <div class="section-body">
+        <div id="status-drops" class="alert alert-info status-line">Lade Daten…</div>
+
+        <div class="stat-grid">
+          <div class="stat-tile card">
+            <span class="stat-value" id="stat-drops-gesamt">–</span>
+            <span class="stat-label">Drops (nicht gelöscht)</span>
+          </div>
+          <div class="stat-tile card">
+            <span class="stat-value" id="stat-drops-pro-nutzer">–</span>
+            <span class="stat-label">Drops pro Nutzer mit Drops</span>
+          </div>
+          <div class="stat-tile card">
+            <span class="stat-value" id="stat-drops-bearbeitet">–</span>
+            <span class="stat-label">der sichtbaren Drops bearbeitet (Text, Bild, Erfahrung oder exakter Betrag)</span>
+          </div>
+          <div class="stat-tile card">
+            <span class="stat-value" id="stat-nutzer-bearbeiten">–</span>
+            <span class="stat-label">der Nutzer mit Drops haben mind. einen bearbeitet</span>
+          </div>
+          <div class="stat-tile card">
+            <span class="stat-value" id="stat-drops-haendler">–</span>
+            <span class="stat-label">der Drops mit erkanntem Händler</span>
+          </div>
+          <div class="stat-tile card">
+            <span class="stat-value" id="stat-drops-geloescht">–</span>
+            <span class="stat-label">aller Drops gelöscht</span>
+          </div>
+          <div class="stat-tile card">
+            <span class="stat-value" id="stat-drops-vorgemerkt">–</span>
+            <span class="stat-label">der Drops noch vorgemerkt (nicht gebucht)</span>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection-title">Sichtbare Drops</h3>
+          <p class="subsection-sub">Anteil der für Freunde sichtbaren Drops mit dem jeweiligen Inhalt. Einen Ort speichert die App bei Drops (noch) nicht.</p>
+
+          <div class="chart-grid">
+            <figure class="chart-card card">
+              <div class="card-header chart-card-head">
+                <h3 class="card-title">Womit Drops bearbeitet werden</h3>
+                <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-drops-inhalt"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
+              </div>
+              <div class="card-body chart-canvas-wrap-tall"><canvas id="chart-drops-inhalt"></canvas></div>
+              <div class="table-view" id="table-drops-inhalt" hidden></div>
+            </figure>
+
+            <figure class="chart-card card">
+              <div class="card-header chart-card-head">
+                <h3 class="card-title">Bearbeitet pro Woche</h3>
+                <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-drops-wochen"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
+              </div>
+              <div class="card-body chart-canvas-wrap"><canvas id="chart-drops-wochen"></canvas></div>
+              <div class="table-view" id="table-drops-wochen" hidden></div>
+            </figure>
+
+            <figure class="chart-card card">
+              <div class="card-header chart-card-head">
+                <h3 class="card-title">Erfahrung</h3>
+                <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-drops-erfahrung"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
+              </div>
+              <div class="card-body chart-canvas-wrap-tall"><canvas id="chart-drops-erfahrung"></canvas></div>
+              <div class="table-view" id="table-drops-erfahrung" hidden></div>
+            </figure>
+
+            <figure class="chart-card card">
+              <div class="card-header chart-card-head">
+                <h3 class="card-title">Top-Kategorien</h3>
+                <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-drops-kategorien"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
+              </div>
+              <div class="card-body chart-canvas-wrap-tall"><canvas id="chart-drops-kategorien"></canvas></div>
+              <div class="table-view" id="table-drops-kategorien" hidden></div>
+            </figure>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection-title">Eingänge</h3>
+          <p class="subsection-sub">Zuordnung: „zugeordnet“ = hat einen Split reduziert (Überweisung erkannt), „ignoriert“ = Vorschlag abgelehnt, „offen“ = nichts passiert.</p>
+
+          <div class="stat-grid">
+            <div class="stat-tile card">
+              <span class="stat-value" id="stat-eingang-gesamt">–</span>
+              <span class="stat-label">Eingänge (nicht gelöscht)</span>
+            </div>
+            <div class="stat-tile card">
+              <span class="stat-value" id="stat-eingang-haendler">–</span>
+              <span class="stat-label">der Eingänge mit erkanntem Absender</span>
+            </div>
+            <div class="stat-tile card">
+              <span class="stat-value" id="stat-eingang-pro-nutzer">–</span>
+              <span class="stat-label">Eingänge pro Nutzer mit Eingängen</span>
+            </div>
+          </div>
+
+          <div class="chart-grid">
+            <figure class="chart-card card">
+              <div class="card-header chart-card-head">
+                <h3 class="card-title">Zuordnung der Eingänge</h3>
+                <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-eingang-zuordnung"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
+              </div>
+              <div class="card-body chart-canvas-wrap"><canvas id="chart-eingang-zuordnung"></canvas></div>
+              <div class="table-view" id="table-eingang-zuordnung" hidden></div>
+            </figure>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="dashboard-section card collapsed" data-section="chathealth" id="chathealth">
+      <div class="section-header" role="button" tabindex="0" aria-expanded="false" data-toggle-section>
+        <span class="section-marker badge">07</span>
+        <div>
+          <h2 class="section-title">Chat Health</h2>
+          <p class="section-sub">Struktur der Chats/Freundschaften pro Nutzer, plus gesendete Nachrichten pro Tag seit Registrierung</p>
+        </div>
+        <span class="chevron" aria-hidden="true">▾</span>
+      </div>
+
+      <div class="section-body">
+        <div id="status-chathealth" class="alert alert-info status-line">Lade Daten…</div>
+
+        <div class="stat-grid">
+          <div class="stat-tile card">
+            <span class="stat-value" id="stat-einzelchats-pro-nutzer">–</span>
+            <span class="stat-label">Einzelchats pro Nutzer</span>
+          </div>
+          <div class="stat-tile card">
+            <span class="stat-value" id="stat-gruppen-pro-nutzer">–</span>
+            <span class="stat-label">Gruppen pro Nutzer</span>
+          </div>
+          <div class="stat-tile card">
+            <span class="stat-value" id="stat-mitglieder-pro-gruppe">–</span>
+            <span class="stat-label">Mitglieder pro Gruppe</span>
+          </div>
+          <div class="stat-tile card">
+            <span class="stat-value" id="stat-schattenchats-pro-nutzer">–</span>
+            <span class="stat-label">Schattenchats pro Nutzer</span>
+          </div>
+          <div class="stat-tile card">
+            <span class="stat-value" id="stat-entfernte-pro-nutzer">–</span>
+            <span class="stat-label">Entfernte Personen pro Nutzer</span>
+          </div>
+          <div class="stat-tile card">
+            <span class="stat-value" id="stat-blockierte-pro-nutzer">–</span>
+            <span class="stat-label">Blockierte Personen pro Nutzer</span>
+          </div>
+          <div class="stat-tile card">
+            <span class="stat-value" id="stat-forderung-mit-drop">–</span>
+            <span class="stat-label">der Forderungen haben einen angehängten Drop</span>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <div class="filter">
+            <span class="filter-label">Kategorie</span>
+            <div class="segmented btn-group" id="f4-kategorie" role="group">
+              <button type="button" data-value="text" class="btn btn-sm active">Text</button>
+              <button type="button" data-value="forderung" class="btn btn-sm">Forderungen</button>
+              <button type="button" data-value="zahlung" class="btn btn-sm">Zahlungen</button>
+              <button type="button" data-value="erinnerung" class="btn btn-sm">Erinnerungen</button>
+              <button type="button" data-value="ueberweisung_bestaetigt" class="btn btn-sm">Bestätigte Überweisungen</button>
+              <button type="button" data-value="manuelle_korrektur" class="btn btn-sm">Manuelle Korrekturen</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-grid">
+          <figure class="chart-card card">
+            <div class="card-header chart-card-head">
+              <h3 class="card-title">Nachrichten gesendet / Nutzer</h3>
+              <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-chathealth"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
+            </div>
+            <div class="card-body chart-canvas-wrap"><canvas id="chart-chathealth"></canvas></div>
+            <div class="table-view" id="table-chathealth" hidden></div>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+      </div>
+
+      <div class="dashboard-sheet" data-dashboard-sheet="finapi" id="finapi" role="tabpanel" aria-labelledby="tab-finapi" hidden>
+        <section class="dashboard-section card" data-section="kosten" id="kosten">
+          <div class="section-header" role="button" tabindex="0" aria-expanded="true" data-toggle-section>
+            <span class="section-marker badge">KOSTEN</span>
+            <div>
+              <h2 class="section-title">Kosten</h2>
+              <p class="section-sub">Was finAPI pro Kalendermonat berechnet – Listenpreise netto (<span id="kosten-quelle">finapi.io/preise</span>). Gezählt wird jeder finAPI-Nutzer, der im Monat existiert hat; ein gelöschter kostet seinen Löschmonat noch voll.</p>
+            </div>
+            <span class="chevron" aria-hidden="true">▾</span>
+          </div>
+
+          <div class="section-body">
+            <div id="kosten-status" class="alert alert-info status-line">Lade Kosten…</div>
+
+            <div class="stat-grid compact">
+              <div class="stat-tile card"><span class="stat-value" id="kosten-summe">–</span><span class="stat-label" id="kosten-summe-label">Kosten diesen Monat (bisher)</span></div>
+              <div class="stat-tile card"><span class="stat-value" id="kosten-nutzer">–</span><span class="stat-label">abrechenbare finAPI-Nutzer diesen Monat</span></div>
+              <div class="stat-tile card"><span class="stat-value" id="kosten-ohne-bank">–</span><span class="stat-label">davon ohne Bankverbindung (abgebrochenes Verbinden kostet mit)</span></div>
+              <div class="stat-tile card"><span class="stat-value" id="kosten-sprung">–</span><span class="stat-label" id="kosten-sprung-label">nächste Preisstufe</span></div>
+            </div>
+
+            <div class="subsection" style="margin-top:0;padding-top:0;border-top:none;">
+              <h3 class="subsection-title">Kostentypen</h3>
+              <p class="subsection-sub">Preisskala von finAPI; die Zeile, die diesen Monat gilt, ist hervorgehoben. Pauschalen und Stufen gelten für den ganzen Monat, die Preise „je Nutzer“ kommen kumulativ dazu.</p>
+              <div class="kosten-karten" id="kosten-karten"></div>
+            </div>
+
+            <div class="subsection">
+              <h3 class="subsection-title">Monatsübersicht</h3>
+              <p class="subsection-sub" id="kosten-monate-sub">Gesamtkosten je Kalendermonat.</p>
+              <div class="chart-grid">
+                <figure class="chart-card card">
+                  <div class="card-header chart-card-head">
+                    <h3 class="card-title">finAPI-Kosten je Monat (€)</h3>
+                  </div>
+                  <div class="card-body chart-canvas-wrap"><canvas id="chart-kosten"></canvas></div>
+                </figure>
+              </div>
+              <div class="kosten-tabelle-scroll"><table class="kosten-tabelle" id="kosten-monate"></table></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="dashboard-section card" data-section="trennung" id="trennung">
+          <div class="section-header" role="button" tabindex="0" aria-expanded="true" data-toggle-section>
+            <span class="section-marker badge">INAKTIV</span>
+            <div>
+              <h2 class="section-title">Inaktivitäts-Trennung</h2>
+              <p class="section-sub">Kostenbremse: Am Monatsletzten um 16:30 (Wien) trennt <code>bank-waechter</code> die Bankverbindung aller, die so lange nicht in der App waren (gemessen an screen_besuch). Kein Push davor, kein Hinweis danach – wer zurückkommt, sieht das normale „Bank verbinden“.</p>
+            </div>
+            <span class="chevron" aria-hidden="true">▾</span>
+          </div>
+
+          <div class="section-body">
+            <div id="trennung-status" class="alert alert-info status-line">Lade Inaktivitäts-Trennung…</div>
+
+            <div class="stat-grid compact">
+              <div class="stat-tile card"><span class="stat-value" id="trennung-zahl">–</span><span class="stat-label">Verbindungen würden heute getrennt (gespeicherter Wert)</span></div>
+              <div class="stat-tile card"><span class="stat-value" id="trennung-naechster">–</span><span class="stat-label">nächster Lauf (Monatsletzter 16:30)</span></div>
+            </div>
+
+            <div class="subsection" style="margin-top:0;padding-top:0;border-top:none;">
+              <h3 class="subsection-title">Einstellung</h3>
+              <p class="subsection-sub">Gilt ab dem nächsten Monatsletzten für alle.</p>
+              <div class="alg-grid">
+                <label class="alg-feld">
+                  <span class="alg-label">Tage ohne App bis zur Trennung</span>
+                  <span class="alg-hint">Wer am Monatsletzten so lange nicht in der App war, verliert die Bankverbindung</span>
+                  <span class="alg-eingabe">
+                    <input type="number" class="form-control form-control-sm" id="trennung-tage" min="1" max="365" step="1" />
+                    <span class="alg-einheit">Tage</span>
+                  </span>
+                  <span class="trennung-vorschau" id="trennung-vorschau"></span>
+                </label>
+              </div>
+
+              <div class="aktionen-zeile">
+                <button type="button" class="btn btn-primary btn-sm" id="trennung-speichern" disabled>Speichern</button>
+                <span class="settings-note" id="trennung-hinweis" style="margin:0;"></span>
+              </div>
+            </div>
+
+            <div class="subsection">
+              <h3 class="subsection-title">Probelauf</h3>
+              <p class="subsection-sub">Rechnet den Lauf von <code>bank-waechter</code> für den nächsten Monatsletzten durch – trennt nichts, schreibt nichts, verschickt keine Pushes.</p>
+              <button type="button" class="btn btn-outline-secondary btn-sm" id="trennung-probelauf">Probelauf jetzt</button>
+              <div class="trennung-ergebnis" id="trennung-probelauf-ergebnis"></div>
+            </div>
+          </div>
+        </section>
+
+    <section class="dashboard-section card" data-section="bankhealth" id="bankhealth">
+      <div class="section-header" role="button" tabindex="0" aria-expanded="true" data-toggle-section>
+        <span class="section-marker badge">BANK</span>
+        <div>
+          <h2 class="section-title">Bank Health</h2>
+          <p class="section-sub">Bank-Verbinden-Ablauf: neue und getrennte Verbindungen pro Tag, und wie weit die Nutzer je Durchlauf gekommen sind (bank_flow_event)</p>
+        </div>
+        <span class="chevron" aria-hidden="true">▾</span>
+      </div>
+
+      <div class="section-body">
+        <div id="status-bankhealth" class="alert alert-info status-line">Lade Daten…</div>
+
+        <div class="stat-grid">
+          <div class="stat-tile card">
+            <span class="stat-value" id="stat-bank-aktiv">–</span>
+            <span class="stat-label">aktive Bankverbindungen</span>
+          </div>
+          <div class="stat-tile card">
+            <span class="stat-value" id="stat-bank-neu-teil2">–</span>
+            <span class="stat-label">neu verbunden über Registrierung Teil 2</span>
+          </div>
+          <div class="stat-tile card">
+            <span class="stat-value" id="stat-bank-getrennt-teil2">–</span>
+            <span class="stat-label">getrennt über Registrierung Teil 2</span>
+          </div>
+          <div class="stat-tile card">
+            <span class="stat-value" id="stat-bank-neu-reauth">–</span>
+            <span class="stat-label">neu verbunden über Reauthentifizieren</span>
+          </div>
+          <div class="stat-tile card">
+            <span class="stat-value" id="stat-bank-getrennt-reauth">–</span>
+            <span class="stat-label">getrennt über Reauthentifizieren</span>
+          </div>
+          <div class="stat-tile card">
+            <span class="stat-value" id="stat-bank-abschluss-teil2">–</span>
+            <span class="stat-label">der Durchläufe von Teil 2 enden mit einer Bank</span>
+          </div>
+          <div class="stat-tile card">
+            <span class="stat-value" id="stat-bank-fehler">–</span>
+            <span class="stat-label">der Durchläufe mit Verbindungsfehler (Maus drauf: welche)</span>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection-title">Registrierung Teil 2</h3>
+          <p class="subsection-sub">Pop-up 1 – noch nie eine Bank verbunden. Der Ablauf endet mit der Drop-Einrichtung.</p>
+
+          <div class="chart-grid">
+            <figure class="chart-card card">
+              <div class="card-header chart-card-head">
+                <h3 class="card-title">Verbunden und getrennt pro Tag</h3>
+                <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-bank-tage-teil2"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
+              </div>
+              <div class="card-body chart-canvas-wrap"><canvas id="chart-bank-tage-teil2"></canvas></div>
+              <div class="table-view" id="table-bank-tage-teil2" hidden></div>
+            </figure>
+
+            <figure class="chart-card card">
+              <div class="card-header chart-card-head">
+                <h3 class="card-title">Bis zu welchem Screen gekommen</h3>
+                <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-bank-screens-teil2"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
+              </div>
+              <div class="card-body chart-canvas-wrap-tall"><canvas id="chart-bank-screens-teil2"></canvas></div>
+              <div class="table-view" id="table-bank-screens-teil2" hidden></div>
+            </figure>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection-title">Reauthentifizieren</h3>
+          <p class="subsection-sub">Pop-up 2 – schon mal verbunden, Zugang abgelaufen. Ohne Drop-Einrichtung.</p>
+
+          <div class="chart-grid">
+            <figure class="chart-card card">
+              <div class="card-header chart-card-head">
+                <h3 class="card-title">Verbunden und getrennt pro Tag</h3>
+                <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-bank-tage-reauth"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
+              </div>
+              <div class="card-body chart-canvas-wrap"><canvas id="chart-bank-tage-reauth"></canvas></div>
+              <div class="table-view" id="table-bank-tage-reauth" hidden></div>
+            </figure>
+
+            <figure class="chart-card card">
+              <div class="card-header chart-card-head">
+                <h3 class="card-title">Bis zu welchem Screen gekommen</h3>
+                <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-bank-screens-reauth"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
+              </div>
+              <div class="card-body chart-canvas-wrap-tall"><canvas id="chart-bank-screens-reauth"></canvas></div>
+              <div class="table-view" id="table-bank-screens-reauth" hidden></div>
+            </figure>
+          </div>
+        </div>
+
+        <p class="subsection-sub" id="bank-unbekannt-hinweis" hidden></p>
+      </div>
+    </section>
+      </div>
+
+      <div class="dashboard-sheet" data-dashboard-sheet="bonus" id="bonus" role="tabpanel" aria-labelledby="tab-bonus" hidden>
+        <!-- Bonus Programm (dashboard/sql/bonusgruppen.sql): Ein Nutzer holt
+             2–4 Leute ohne App in eine Bonusgruppe; schaffen alle Konto, Uni
+             und Bank in 7 Tagen, bekommt jeder den Bonus. -->
+        <section class="dashboard-section card" data-section="bonus">
+          <div class="section-header" role="button" tabindex="0" aria-expanded="true" data-toggle-section>
+            <span class="section-marker badge">BON</span>
+            <div>
+              <h2 class="section-title">Bonusprogramm</h2>
+              <p class="section-sub">Bonusgruppen, Häkchen, Auszahlungen und Einstellungen · Tabellen bonusgruppe, bonusgruppe_mitglied, bonus_auszahlung</p>
+            </div>
+            <span class="chevron" aria-hidden="true">▾</span>
+          </div>
+
+          <div class="section-body">
+            <p class="unterseite-intro">Freundesgruppen gemeinsam aktivieren: 3–5 Personen, Uni und Bank verbunden, innerhalb einer Woche. Wird nur aktiviert, wenn der Invite Loop nach drei bis vier Wochen nicht trägt.</p>
+            <div id="bon-status" class="alert alert-info status-line">Lade Bonus Programm…</div>
+
+            <div class="subsection" style="margin-top:0;padding-top:0;border-top:none;">
+              <h3 class="subsection-title">Übersicht</h3>
+              <div class="stat-grid compact">
+                <div class="stat-tile card"><span class="stat-value" id="bon-zahl-gruppen">–</span><span class="stat-label" id="bon-zahl-gruppen-label">Bonusgruppen erstellt</span></div>
+                <div class="stat-tile card"><span class="stat-value" id="bon-zahl-laufend">–</span><span class="stat-label">laufen gerade</span></div>
+                <div class="stat-tile card"><span class="stat-value" id="bon-zahl-erfolgreich">–</span><span class="stat-label">erfolgreich</span></div>
+                <div class="stat-tile card"><span class="stat-value" id="bon-zahl-verpasst">–</span><span class="stat-label">gescheitert (inkl. abgelaufen)</span></div>
+              </div>
+              <div class="stat-grid compact">
+                <div class="stat-tile card"><span class="stat-value" id="bon-zahl-weiter">–</span><span class="stat-label" id="bon-zahl-weiter-label">von Geworbenen erstellt (Ersteller war vorher Bonus-Mitglied)</span></div>
+                <div class="stat-tile card"><span class="stat-value" id="bon-zahl-ausbezahlt">–</span><span class="stat-label">ausbezahlt</span></div>
+                <div class="stat-tile card"><span class="stat-value" id="bon-zahl-offen">–</span><span class="stat-label">noch auszuzahlen</span></div>
+              </div>
+
+              <div class="chart-grid">
+                <figure class="chart-card card">
+                  <div class="card-header chart-card-head">
+                    <h3 class="card-title">Bonusgruppen erstellt / Tag</h3>
+                    <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-bon-tage"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
+                  </div>
+                  <div class="card-body chart-canvas-wrap"><canvas id="chart-bon-tage"></canvas></div>
+                  <div class="table-view" id="table-bon-tage" hidden></div>
+                </figure>
+                <figure class="chart-card card">
+                  <div class="card-header chart-card-head">
+                    <h3 class="card-title">Bonusgruppen nach Größe</h3>
+                    <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-bon-groesse"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
+                  </div>
+                  <div class="card-body chart-canvas-wrap"><canvas id="chart-bon-groesse"></canvas></div>
+                  <div class="table-view" id="table-bon-groesse" hidden></div>
+                </figure>
+              </div>
+            </div>
+
+            <div class="subsection">
+              <h3 class="subsection-title">Personen in Bonusgruppen</h3>
+              <p class="subsection-sub">Jede Person einmal, auch wenn sie in zwei Bonusgruppen ist (als Mitglied und als Erstellerin). Prozent vom Gesamt.</p>
+              <div class="stat-grid compact">
+                <div class="stat-tile card"><span class="stat-value" id="bon-zahl-personen">–</span><span class="stat-label">Personen insgesamt</span></div>
+                <div class="stat-tile card"><span class="stat-value" id="bon-zahl-schatten">–</span><span class="stat-label" id="bon-zahl-schatten-label">davon Schattenpersonen (noch ohne Konto)</span></div>
+                <div class="stat-tile card"><span class="stat-value" id="bon-zahl-konto">–</span><span class="stat-label" id="bon-zahl-konto-label">davon registriert (Konto erstellt)</span></div>
+              </div>
+              <div class="stat-grid compact">
+                <div class="stat-tile card"><span class="stat-value" id="bon-zahl-uni">–</span><span class="stat-label" id="bon-zahl-uni-label">davon Uni verbunden</span></div>
+                <div class="stat-tile card"><span class="stat-value" id="bon-zahl-bank">–</span><span class="stat-label" id="bon-zahl-bank-label">davon Bank verbunden</span></div>
+              </div>
+            </div>
+
+            <div class="subsection">
+              <h3 class="subsection-title">Einstellungen</h3>
+              <p class="subsection-sub">Höchstbetrag, den DropChat an der Bonusforderung (erste Forderung in der Gruppe) übernimmt – wird beim Erstellen einer Bonusgruppe festgeschrieben, Änderungen gelten nur für neue Gruppen. Ausschalten blendet den Knopf in der App aus; laufende Bonusgruppen bleiben gültig.</p>
+              <h4 class="bon-gruppe-titel">Main</h4>
+              <div class="alg-grid">
+                <div class="alg-feld">
+                  <span class="alg-label">Programm</span>
+                  <span class="alg-hint">Knopf „Bonusgruppe“ auf der Freunde-Seite</span>
+                  <label class="form-check form-switch" style="margin-top:6px;">
+                    <input class="form-check-input" type="checkbox" id="bon-aktiv" />
+                    <span class="form-check-label" id="bon-aktiv-text">aus</span>
+                  </label>
+                </div>
+                <div class="alg-feld">
+                  <span class="alg-label">Zählt als „Uni verbunden“</span>
+                  <span class="alg-hint">Mindestens eine</span>
+                  <div id="bon-unis" class="bon-unis"></div>
+                </div>
+              </div>
+
+              <h4 class="bon-gruppe-titel">Reward</h4>
+              <div class="alg-grid">
+                <label class="alg-feld">
+                  <span class="alg-label">3 Personen</span>
+                  <span class="alg-hint">Ersteller + 2 · DropChat übernimmt bis zu</span>
+                  <span class="alg-eingabe"><input type="number" class="form-control form-control-sm" id="bon-betrag-3" min="0" max="100" step="0.01" /><span class="alg-einheit">€</span></span>
+                </label>
+                <label class="alg-feld">
+                  <span class="alg-label">4 Personen</span>
+                  <span class="alg-hint">Ersteller + 3 · DropChat übernimmt bis zu</span>
+                  <span class="alg-eingabe"><input type="number" class="form-control form-control-sm" id="bon-betrag-4" min="0" max="100" step="0.01" /><span class="alg-einheit">€</span></span>
+                </label>
+                <label class="alg-feld">
+                  <span class="alg-label">5 Personen</span>
+                  <span class="alg-hint">Ersteller + 4 · DropChat übernimmt bis zu</span>
+                  <span class="alg-eingabe"><input type="number" class="form-control form-control-sm" id="bon-betrag-5" min="0" max="100" step="0.01" /><span class="alg-einheit">€</span></span>
+                </label>
+              </div>
+
+              <h4 class="bon-gruppe-titel">Grenzen</h4>
+              <div class="alg-grid">
+                <label class="alg-feld">
+                  <span class="alg-label">Höchstzahl Bonusgruppen</span>
+                  <span class="alg-hint">Insgesamt erstellte Gruppen – leer = unbegrenzt</span>
+                  <span class="alg-eingabe"><input type="number" class="form-control form-control-sm" id="bon-max" min="1" step="1" /><span class="alg-einheit">Gruppen</span></span>
+                </label>
+                <label class="alg-feld">
+                  <span class="alg-label">Maximales Budget</span>
+                  <span class="alg-hint">Was DropChat insgesamt höchstens zahlt – jede Gruppe reserviert ihren Höchstbetrag. Leer = unbegrenzt</span>
+                  <span class="alg-eingabe"><input type="number" class="form-control form-control-sm" id="bon-budget" min="1" step="1" /><span class="alg-einheit">€</span></span>
+                  <span class="alg-hint" id="bon-budget-stand"></span>
+                </label>
+              </div>
+              <div class="aktionen-zeile">
+                <button type="button" class="btn btn-primary btn-sm" id="bon-speichern">Einstellungen speichern</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="bon-ablaufen">Abgelaufene jetzt beenden</button>
+                <span class="settings-note" id="bon-hinweis" style="margin:0;"></span>
+              </div>
+            </div>
+
+            <div class="subsection">
+              <h3 class="subsection-title">Auszahlungen</h3>
+              <p class="subsection-sub">Je erfolgreicher Bonusgruppe mit Bonusforderung: an die Person, die die Bonusforderung erstellt hat – DropChats Anteil an der Bonusforderung, mit der IBAN der verbundenen Bank. Überweisen und hier als ausbezahlt markieren.</p>
+              <div id="bon-auszahlungen"></div>
+            </div>
+
+            <div class="subsection">
+              <h3 class="subsection-title">Bonusgruppen</h3>
+              <p class="subsection-sub">„Mitglieder“ zeigt die drei Häkchen je Person. Konflikt = IBAN bzw. Uni-Mail zählt im Bonusprogramm schon für jemand anderen.</p>
+              <div id="bon-gruppen"></div>
+              <p class="settings-note" id="bon-liste-hinweis"></p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Wann kann das Bonusprogramm aus? Vier Signale aus den Metrik-Daten. -->
+        <section class="dashboard-section card collapsed" data-section="bonus" id="bonus-signale">
+          <div class="section-header" role="button" tabindex="0" aria-expanded="false" data-toggle-section>
+            <span class="section-marker badge">SIG</span>
+            <div>
+              <h2 class="section-title">Signale</h2>
+              <p class="section-sub">Wann das Bonusprogramm abschaltbar sein könnte – trägt das Netzwerk schon ohne Bonus?</p>
+            </div>
+            <span class="chevron" aria-hidden="true">▾</span>
+          </div>
+
+          <div class="section-body">
+            <div id="sig-status" class="alert alert-info status-line">Lade Daten…</div>
+
+            <div class="subsection" style="margin-top:0;padding-top:0;border-top:none;">
+              <h3 class="subsection-title">1 · Neuanmeldungen ohne Bonus</h3>
+              <p class="subsection-sub">Neue aktivierte Nutzer (registriert und Bank verbunden) der letzten 2 Tage nach Quelle – je größer der Anteil ohne Bonusgruppe, desto weniger braucht es den Bonus.</p>
+              <div class="stat-grid compact">
+                <div class="stat-tile card"><span class="stat-value" id="sig-ohne-bonus">–</span><span class="stat-label" id="sig-ohne-bonus-label">kamen nicht über eine Bonusgruppe (letzte 2 Tage)</span></div>
+                <div class="stat-tile card"><span class="stat-value" id="sig-ohne-bonus-vorher">–</span><span class="stat-label">die 2 Tage davor</span></div>
+              </div>
+              <div class="kosten-tabelle-scroll"><table class="kosten-tabelle" id="sig-quellen"></table></div>
+            </div>
+
+            <div class="subsection">
+              <h3 class="subsection-title">2 · Neue Nutzer finden Freunde vor</h3>
+              <p class="subsection-sub">Anteil der Neuanmeldungen, die beim Registrieren schon mindestens einen Kontakt in der App haben (Details: 03 Internes Marketing → Gesamt).</p>
+              <div class="stat-grid compact">
+                <div class="stat-tile card"><span class="stat-value" id="sig-vorfinden">–</span><span class="stat-label" id="sig-vorfinden-label">finden mindestens 1 Kontakt vor (letzte 2 Tage)</span></div>
+              </div>
+            </div>
+
+            <div class="subsection">
+              <h3 class="subsection-title">3 · Bonus-Nutzer bleiben nicht besser als organische</h3>
+              <p class="subsection-sub">Anteil, der in Woche 4 nach der Registrierung (Tag 22–28) die App mindestens einmal geöffnet hat. Bleiben Bonus-Nutzer nicht länger, kauft der Bonus nur Anmeldungen, keine Nutzer.</p>
+              <div class="stat-grid compact">
+                <div class="stat-tile card"><span class="stat-value" id="sig-aktiv-bonus">–</span><span class="stat-label" id="sig-aktiv-bonus-label">Bonusgruppe: in Woche 4 aktiv</span></div>
+                <div class="stat-tile card"><span class="stat-value" id="sig-aktiv-organisch">–</span><span class="stat-label" id="sig-aktiv-organisch-label">alle anderen: in Woche 4 aktiv</span></div>
+              </div>
+            </div>
+
+            <div class="subsection">
+              <h3 class="subsection-title">4 · WU-Durchdringung</h3>
+              <p class="subsection-sub">Ab einem gewissen Punkt hat fast jede Freundesgruppe jemanden in der App – dann verbreitet sie sich von allein.</p>
+              <div class="stat-grid compact">
+                <div class="stat-tile card"><span class="stat-value" id="sig-wu">–</span><span class="stat-label">WU-Studis mit Konto (WU verbunden)</span></div>
+                <div class="stat-tile card"><span class="stat-value" id="sig-wu-bank">–</span><span class="stat-label">davon Bank verbunden</span></div>
+                <div class="stat-tile card"><span class="stat-value" id="sig-wu-neu">–</span><span class="stat-label">neu in den letzten 2 Tagen</span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="dashboard-sheet" data-dashboard-sheet="support" id="support" role="tabpanel" aria-labelledby="tab-support" hidden>
+        <div id="support-data-status" class="alert alert-info status-line support-status">Lade Daten…</div>
+
+        <section class="dashboard-section card collapsed" data-section="support-problem">
+          <div class="section-header" role="button" tabindex="0" aria-expanded="false" data-toggle-section>
+            <span class="section-marker badge">PRO</span>
+            <div>
+              <h2 class="section-title">Problem</h2>
+              <p class="section-sub">Fehlerberichte aus <code>report</code> mit Account &amp; E-Mail</p>
+            </div>
+            <span class="chevron" aria-hidden="true">▾</span>
+          </div>
+
+          <div class="section-body">
+            <div id="support-liste-problem" class="support-liste"></div>
+          </div>
+        </section>
+
+        <section class="dashboard-section card collapsed" data-section="support-hilfe">
+          <div class="section-header" role="button" tabindex="0" aria-expanded="false" data-toggle-section>
+            <span class="section-marker badge">HIL</span>
+            <div>
+              <h2 class="section-title">Hilfe</h2>
+              <p class="section-sub">Hilfsanfragen aus <code>report</code> mit Account &amp; E-Mail</p>
+            </div>
+            <span class="chevron" aria-hidden="true">▾</span>
+          </div>
+
+          <div class="section-body">
+            <div id="support-liste-hilfe" class="support-liste"></div>
+          </div>
+        </section>
+
+        <section class="dashboard-section card collapsed" data-section="support-feedback">
+          <div class="section-header" role="button" tabindex="0" aria-expanded="false" data-toggle-section>
+            <span class="section-marker badge">FDB</span>
+            <div>
+              <h2 class="section-title">Feedback</h2>
+              <p class="section-sub">Feedback aus <code>report</code> mit Account &amp; E-Mail</p>
+            </div>
+            <span class="chevron" aria-hidden="true">▾</span>
+          </div>
+
+          <div class="section-body">
+            <div id="support-liste-feedback" class="support-liste"></div>
+          </div>
+        </section>
+
+        <section class="dashboard-section card collapsed" data-section="support-meldungen">
+          <div class="section-header" role="button" tabindex="0" aria-expanded="false" data-toggle-section>
+            <span class="section-marker badge">MEL</span>
+            <div>
+              <h2 class="section-title">Meldungen</h2>
+              <p class="section-sub"><code>audit_log</code>, aktion = <code>meldung</code> (Person über account.person_id aufgelöst)</p>
+            </div>
+            <span class="chevron" aria-hidden="true">▾</span>
+          </div>
+
+          <div class="section-body">
+            <div id="support-liste-meldungen" class="support-liste"></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="dashboard-sheet" data-dashboard-sheet="einstellungen" id="einstellungen" role="tabpanel" aria-labelledby="tab-einstellungen" hidden>
+        <section class="dashboard-section card" data-section="einstellungen">
+          <div class="section-header" role="button" tabindex="0" aria-expanded="true" data-toggle-section>
+            <span class="section-marker badge">SET</span>
+            <div>
+              <h2 class="section-title">Einstellungen</h2>
+              <p class="section-sub">Lokale Anzeigeoptionen für dieses Dashboard</p>
+            </div>
+            <span class="chevron" aria-hidden="true">▾</span>
+          </div>
+
+          <div class="section-body">
+            <div class="settings-grid">
+              <div class="setting-panel card">
+                <h3>Darstellung</h3>
+                <div class="segmented btn-group" id="theme-control" role="group" aria-label="Farbschema">
+                  <button class="btn btn-sm" type="button" data-theme-value="system"><i class="ti ti-device-desktop me-1" aria-hidden="true"></i>System</button>
+                  <button class="btn btn-sm" type="button" data-theme-value="light"><i class="ti ti-sun me-1" aria-hidden="true"></i>Hell</button>
+                  <button class="btn btn-sm" type="button" data-theme-value="dark"><i class="ti ti-moon me-1" aria-hidden="true"></i>Dunkel</button>
+                </div>
+                <p class="settings-note">Die Auswahl wird lokal im Browser gespeichert.</p>
+              </div>
+
+              <div class="setting-panel card">
+                <h3>Daten</h3>
+                <div class="control-row">
+                  <button class="btn btn-outline-primary btn-sm control-button" type="button" id="settings-reload"><i class="ti ti-refresh me-1" aria-hidden="true"></i>Daten neu laden</button>
+                </div>
+                <p class="settings-note" id="settings-reload-status">Lädt alle Daten neu aus Supabase.</p>
+              </div>
+
+              <div class="setting-panel card">
+                <h3>Wartungsarbeiten</h3>
+                <div class="control-row">
+                  <label class="form-check form-switch" style="margin-bottom:0;">
+                    <input class="form-check-input" type="checkbox" id="settings-wartungsmodus" />
+                    <span class="form-check-label" id="settings-wartungsmodus-label">Aus</span>
+                  </label>
+                </div>
+                <p class="settings-note" id="settings-wartungsmodus-status">Lade Status…</p>
+                <p class="settings-note">Schaltet in der App <strong>sofort</strong> (Realtime) für alle Nutzer:innen nur noch den Wartungs-Screen ein/aus – auch für nicht eingeloggte. Notfall-Schalter, z. B. bei einem kritischen Fehler.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"
+          integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.js"
+          integrity="sha384-faMlYZUtkJj+Sh6Bmu/L0GzPcraRWN6CW+9RH3GUrK/Z0WS9tgaNNt0tHiLxsbdb" crossorigin="anonymous"></script>
+  <script src="config.js"></script>
+  <script src="finapiKosten.js"></script>
+  <script src="tracking-metriken.js"></script>
+  <script src="sitzung.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>
