@@ -1,6 +1,7 @@
 // DropChat Dashboard (dashboard_live) – Auswertungen.
-// Daten kommen über dashboardFetch (sitzung.js) aus den Datenbankfunktionen
-// (dashboard/sql/dashboard_lesen.sql, dashboard_schreiben.sql).
+// Übernommen aus dashboard/retention.html. Unterschied: Daten kommen über
+// dashboardFetch (sitzung.js) aus den Datenbankfunktionen
+// (dashboard/sql/dashboard_lesen.sql) statt vom lokalen Server.
 const statusEl = document.getElementById('status-retention');
 const statusWachstumEl = document.getElementById('status-wachstum');
 const THEME_STORAGE_KEY = 'dropchat-dashboard-theme';
@@ -84,7 +85,7 @@ function formatiereSupportZeit(iso) {
 }
 
 // "Als bearbeitet markieren" (siehe dashboard/sql/create_dashboard_bearbeitet_table.sql
-// und dashboard_markiere_bearbeitet). Optimistisches
+// und die neue Route /markiere-bearbeitet in server.mjs). Optimistisches
 // UI-Update: Button -> Badge sofort, Server-Bestätigung im Hintergrund;
 // schlägt der Request fehl, Button kommt zurück + Fehlermeldung.
 async function markiereAlsBearbeitet(quelle, eintragId, button) {
@@ -100,7 +101,6 @@ async function markiereAlsBearbeitet(quelle, eintragId, button) {
     const zeile = await res.json();
     rohdaten.bearbeiteteMap.set(`${quelle}:${eintragId}`, zeile.bearbeitet_am);
     button.replaceWith(baueBearbeitetBadge(zeile.bearbeitet_am));
-    zeigeSupportOffen();
   } catch (err) {
     console.error('Konnte nicht als bearbeitet markieren:', err);
     button.disabled = false;
@@ -174,27 +174,6 @@ function fuelleSupportListe(containerId, eintraege, baueFn) {
   for (const eintrag of eintraege) container.appendChild(baueFn(eintrag));
 }
 
-// Zähler neben "Support" in der Seitenleiste und neben jedem Bereich: alle
-// angezeigten Einträge, die noch nicht als bearbeitet markiert sind.
-let supportEintraege = {}; // Bereich -> Schlüssel wie in bearbeiteteMap
-
-function setzeSupportZaehler(id, offen) {
-  const el = document.getElementById(id);
-  el.textContent = String(offen);
-  el.title = `${offen} noch nicht bearbeitet`;
-  el.hidden = offen === 0;
-}
-
-function zeigeSupportOffen() {
-  let gesamt = 0;
-  for (const [bereich, schluessel] of Object.entries(supportEintraege)) {
-    const offen = schluessel.filter((s) => !rohdaten.bearbeiteteMap.has(s)).length;
-    setzeSupportZaehler(`support-offen-${bereich}`, offen);
-    gesamt += offen;
-  }
-  setzeSupportZaehler('support-offen', gesamt);
-}
-
 function aktualisiereSupportDaten() {
   const supportStatus = document.getElementById('support-data-status');
   if (!supportStatus) return;
@@ -236,66 +215,9 @@ function aktualisiereSupportDaten() {
     });
   });
 
-  const reportSchluessel = (liste) => liste.map((r) => `report:${r.report_id}`);
-  supportEintraege = {
-    problem: reportSchluessel(nachTyp.problem),
-    hilfe: reportSchluessel(nachTyp.hilfe),
-    feedback: reportSchluessel(nachTyp.feedback),
-    meldungen: meldungen.map((m) => `audit_log:${m.audit_id}`),
-  };
-  zeigeSupportOffen();
-
   const gesamt = nachTyp.problem.length + nachTyp.hilfe.length + nachTyp.feedback.length + meldungen.length;
   supportStatus.classList.remove('error');
   supportStatus.textContent = `${reports.length} Reports (${nachTyp.problem.length} Problem, ${nachTyp.hilfe.length} Hilfe, ${nachTyp.feedback.length} Feedback) · ${meldungen.length} Meldungen · ${gesamt} Einträge angezeigt`;
-}
-
-// ---------------------------------------------------------------
-// Blatt "Overview": Nutzeranzahl und durchsuchbare Nutzerliste. Eigener
-// Endpunkt (dashboard_nutzerliste), damit Telefonnummern nicht in rohdaten
-// landen. Namen sind Freitext – deshalb textContent.
-// ---------------------------------------------------------------
-let nutzerListe = [];
-
-function nutzerPasstZuSuche(nutzer, suche) {
-  const begriff = suche.trim().toLowerCase();
-  if (!begriff) return true;
-  if ((nutzer.anzeigename || '').toLowerCase().includes(begriff)) return true;
-  if ((nutzer.email || '').toLowerCase().includes(begriff)) return true;
-  // Nummern gehen auch mit "+", Leerzeichen oder führender 0 ("0664 123…").
-  if (!/^[+\d\s()/-]+$/.test(begriff)) return false;
-  const ziffern = begriff.replace(/\D/g, '').replace(/^0+/, '');
-  return !!ziffern && (nutzer.telefon || '').includes(ziffern);
-}
-
-function zeichneNutzerListe() {
-  const treffer = nutzerListe.filter((n) => nutzerPasstZuSuche(n, document.getElementById('nutzer-suche').value));
-  document.getElementById('nutzer-liste').replaceChildren(...treffer.map((n) => {
-    const zeile = document.createElement('tr');
-    for (const wert of [n.anzeigename, n.email, n.telefon && `+${n.telefon}`, formatiereSupportZeit(n.registriert_am)]) {
-      zeile.insertCell().textContent = wert || '–';
-    }
-    return zeile;
-  }));
-  document.getElementById('nutzer-leer').hidden = treffer.length > 0;
-  document.getElementById('nutzer-status').textContent = `${treffer.length} von ${nutzerListe.length} Nutzern`;
-}
-
-async function initialisiereNutzerListe() {
-  const statusEl = document.getElementById('nutzer-status');
-  try {
-    const res = await dashboardFetch('/nutzerliste.json', { cache: 'no-store' });
-    const daten = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(daten.error || String(res.status));
-    nutzerListe = daten;
-    document.getElementById('stat-nutzer-anzahl').textContent = String(nutzerListe.length);
-    document.getElementById('nutzer-suche').addEventListener('input', zeichneNutzerListe);
-    zeichneNutzerListe();
-  } catch (err) {
-    console.error('Nutzerliste nicht geladen:', err);
-    statusEl.textContent = `Nutzerliste nicht geladen: ${err.message}`;
-    statusEl.classList.add('error');
-  }
 }
 
 function tagKey(isoZeit) {
@@ -409,6 +331,7 @@ async function ladeDaten() {
   const onboardingEvents = alles.onboarding_event;
   const notificationSettings = alles.notification_settings;
   const messages = alles.message;
+  const saldoEvents = alles.saldo_event;
   const expenses = alles.expense;
   const reports = alles.report || [];
   const auditLog = alles.audit_log || [];
@@ -417,14 +340,20 @@ async function ladeDaten() {
   );
   const einladungen = alles.einladung_gesendet || [];
   const bankFlowEvents = alles.bank_flow_event || [];
-  // Abschnitt 06: nur die Felder, die gezählt werden – so liegen keine Texte
-  // im Speicher der Seite.
+  // Abschnitt 06: Inhalte werden nur als "gesetzt ja/nein" gebraucht –
+  // gleich hier umwandeln, damit keine Texte im Speicher der Seite liegen.
   const drops = (alles.drops || []).map((d) => ({
     accountId: d.account_id,
     status: d.status,
     sichtbar: d.sichtbarkeit === 'freunde',
+    hatText: !!(d.caption && d.caption.trim()),
+    hatBild: !!d.bild_pfad,
+    erfahrung: d.erfahrung || null,
+    exakterBetrag: d.betrag_geteilt === true,
     categoryId: d.category_id || null,
     hatHaendler: !!d.merchant_id,
+    vorgemerkt: d.vorgemerkt === true,
+    zeit: d.importiert_am || d.gebucht_am || null,
   }));
   const eingaenge = alles.eingang || [];
   // 03 Schattengruppen: dieselben chat_member-Zeilen mit den neuen
@@ -493,10 +422,11 @@ async function ladeDaten() {
   const chatTypById = new Map(chats.map((c) => [c.chat_id, c.typ]));
   const personIdsMitAccount = new Set(accounts.map((a) => a.person_id));
 
-  // Nachrichten zu EINER normalisierten Liste zusammenführen. "Bestätigte
-  // Überweisungen" kommen ebenfalls aus message: In saldo_event hat die
-  // Rücknahme einer Bestätigung denselben Typ (Gegen-Event) und wäre dort
-  // nicht von einer Bestätigung zu unterscheiden.
+  // Nachrichten + Saldo-Events zu EINER normalisierten Liste
+  // zusammenführen, damit die Kohorten-Berechnung unten nicht zwischen
+  // zwei Tabellen unterscheiden muss. "Bestätigte Überweisungen" haben
+  // keine eigene message.system_typ-Kategorie im Schema, deshalb kommt
+  // diese eine Kategorie aus saldo_event statt aus message.
   const chatHealthEvents = [];
   for (const m of messages) {
     if (!m.sent_at) continue;
@@ -507,9 +437,11 @@ async function ladeDaten() {
       chatHealthEvents.push({ personId: m.ausgeloest_von_person_id, tag: tagKey(m.sent_at), kategorie: 'erinnerung' });
     } else if (m.typ === 'system' && m.system_typ === 'saldo_korrektur' && m.ausgeloest_von_person_id) {
       chatHealthEvents.push({ personId: m.ausgeloest_von_person_id, tag: tagKey(m.sent_at), kategorie: 'manuelle_korrektur' });
-    } else if (m.typ === 'system' && m.system_typ === 'saldo_korrektur_ueberweisung_bestaetigt' && m.ausgeloest_von_person_id) {
-      chatHealthEvents.push({ personId: m.ausgeloest_von_person_id, tag: tagKey(m.sent_at), kategorie: 'ueberweisung_bestaetigt' });
     }
+  }
+  for (const s of saldoEvents) {
+    if (s.typ !== 'ueberweisung_bestaetigt' || !s.zeit || !s.von_person) continue;
+    chatHealthEvents.push({ personId: s.von_person, tag: tagKey(s.zeit), kategorie: 'ueberweisung_bestaetigt' });
   }
 
   // Quelle je registrierter Person – die stärkste zählt, in dieser Reihenfolge:
@@ -904,7 +836,7 @@ function zeichneGruppenChart() {
 }
 
 // Einladungen versendet / Nutzer – exakt dieselbe Kohorten-Logik wie
-// Retention/berechneOrganischesWachstum (Tag 0 = Registrierungstag,
+// Retention/berechneOrganischesWachstum (Tag 1 = Tag NACH Registrierung,
 // Nenner = wie viele Personen an dem Tag schon alt genug waren), nur
 // gezählt werden einladung_gesendet-Zeilen statt screen_besuch/chat.
 // Bewusst OHNE Filter (kein Quelle-Filter wie beim Chat-Chart oben –
@@ -941,7 +873,7 @@ function berechneEinladungenKohorte() {
 
   const tage = [];
   const proNutzer = [];
-  for (let d = 0; d <= groessterOffset; d++) {
+  for (let d = 1; d <= groessterOffset; d++) {
     const nenner = nutzerInKohorte[d] || 0;
     tage.push(d);
     proNutzer.push(nenner ? summeProTag[d] / nenner : 0);
@@ -1130,28 +1062,145 @@ function zeichneOnboardingFunnel() {
 }
 
 // ---------------------------------------------------------------
-// Benachrichtigungen (Untersektion von Onboarding). Die Berechtigung im
-// Betriebssystem steht in zeigeOsFreigabenAnteil, hier der Push-Schalter in
-// der App (notification_settings.push_aktiv). Fehlt für eine Person die Zeile
+// Benachrichtigungen (Untersektion von Onboarding). Kennzahl:
+// account.mitteilungen_zugriff (OS-Berechtigung, wie kontakte_zugriff)
+// – "all"/"limited" zählen als aktiviert. Pro Typ: notification_settings
+// (person_id-Zeile, eigene Toggles). Fehlt für eine Person die Zeile
 // (z. B. noch nie geöffnet), gilt der Spalten-Default aus dem Schema –
 // das entspricht dem, was die App selbst als effektive Einstellung
 // anzeigen würde.
 // ---------------------------------------------------------------
+const BENACHRICHTIGUNGS_TYPEN = [
+  { key: 'push_aktiv', label: 'Push-Benachrichtigungen', standard: true },
+  { key: 'mitteilungen_chat', label: 'Mitteilung im Chat', standard: true },
+  { key: 'drops_vorschau', label: 'Drops werden in 10min gepostet', standard: true },
+  { key: 'neue_drops', label: 'Neue Drops von Freunden', standard: true },
+  { key: 'reaktionen', label: 'Reaktionen auf meine Drops', standard: true },
+  { key: 'bankzugang_ablauf', label: 'Bankzugang läuft ab', standard: true },
+  { key: 'angebote_neuigkeiten', label: 'Angebote & Neuigkeiten', standard: true },
+  { key: 'email_benachrichtigungen', label: 'E-Mail-Benachrichtigungen', standard: false },
+];
+let chartBenachrichtigungen = null;
+
 function zeigeBenachrichtigungenAktiviertAnteil() {
-  const { accounts, notificationSettingsProPerson } = rohdaten;
+  const { accounts } = rohdaten;
   const gesamt = accounts.length;
-  const aktiviert = accounts.filter((a) => notificationSettingsProPerson.get(a.person_id)?.push_aktiv ?? true).length;
+  const aktiviert = accounts.filter((a) => a.mitteilungen_zugriff && a.mitteilungen_zugriff !== 'none').length;
   const anteil = gesamt ? Math.round((aktiviert / gesamt) * 100) : 0;
-  const el = document.getElementById('stat-push-aktiviert');
+  const el = document.getElementById('stat-benachrichtigungen-aktiviert');
   el.textContent = `${anteil}%`;
   el.title = `${aktiviert} von ${gesamt} Nutzer:innen`;
+}
+
+function berechneBenachrichtigungsTypen() {
+  const { accounts, notificationSettingsProPerson } = rohdaten;
+  const gesamt = accounts.length;
+  if (gesamt === 0) return [];
+
+  return BENACHRICHTIGUNGS_TYPEN.map((typ) => {
+    let an = 0;
+    for (const a of accounts) {
+      const einstellung = notificationSettingsProPerson.get(a.person_id);
+      const wert = einstellung ? Boolean(einstellung[typ.key]) : typ.standard;
+      if (wert) an++;
+    }
+    return { label: typ.label, anzahl: an, anteil: an / gesamt };
+  }).sort((a, b) => b.anteil - a.anteil);
+}
+
+function zeichneBenachrichtigungenChart() {
+  const typen = berechneBenachrichtigungsTypen();
+  if (typen.length === 0) {
+    if (chartBenachrichtigungen) { chartBenachrichtigungen.destroy(); chartBenachrichtigungen = null; }
+    document.getElementById('table-benachrichtigungen').innerHTML = '';
+    return;
+  }
+
+  const direktLabelPlugin = {
+    id: 'direktLabelBenachrichtigungen',
+    afterDatasetsDraw(chart) {
+      const { ctx } = chart;
+      const meta = chart.getDatasetMeta(0);
+      const labels = chart.data.datasets[0].direktLabels || [];
+      ctx.save();
+      ctx.fillStyle = css('--text-primary');
+      ctx.font = '600 12px system-ui, -apple-system, sans-serif';
+      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'left';
+      meta.data.forEach((bar, i) => {
+        ctx.fillText(labels[i] ?? '', bar.x + 8, bar.y);
+      });
+      ctx.restore();
+    },
+  };
+
+  const config = {
+    type: 'bar',
+    data: {
+      labels: typen.map((t) => t.label),
+      datasets: [{
+        data: typen.map((t) => Math.round(t.anteil * 100)),
+        direktLabels: typen.map((t) => `${Math.round(t.anteil * 100)}% (${t.anzahl})`),
+        backgroundColor: css('--series-6'),
+        borderRadius: 4,
+        barPercentage: 0.6,
+      }],
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: { padding: { right: 70 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: css('--surface-1'),
+          titleColor: css('--text-muted'),
+          bodyColor: css('--text-primary'),
+          bodyFont: { weight: 'bold' },
+          borderColor: css('--border'),
+          borderWidth: 1,
+          padding: 10,
+          displayColors: false,
+          callbacks: {
+            label: (item) => `${typen[item.dataIndex].anzahl} von ${rohdaten.accounts.length} Nutzer:innen`,
+          },
+        },
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          max: 100,
+          title: { display: true, text: 'Anteil der Nutzer (%)', color: css('--text-muted'), font: { size: 11 } },
+          grid: { color: css('--gridline') },
+          ticks: { color: css('--text-muted'), font: { size: 11 } },
+          border: { display: false },
+        },
+        y: {
+          grid: { display: false },
+          ticks: { color: css('--text-primary'), font: { size: 12 } },
+          border: { color: css('--baseline') },
+        },
+      },
+    },
+    plugins: [direktLabelPlugin],
+  };
+
+  if (chartBenachrichtigungen) { chartBenachrichtigungen.destroy(); chartBenachrichtigungen = null; }
+  chartBenachrichtigungen = new Chart(document.getElementById('chart-benachrichtigungen'), config);
+
+  const tabelle = document.getElementById('table-benachrichtigungen');
+  const zeilen = typen
+    .map((t) => `<tr><td>${t.label}</td><td>${t.anzahl}</td><td>${Math.round(t.anteil * 100)}%</td></tr>`)
+    .join('');
+  tabelle.innerHTML = `<table><thead><tr><th>Typ</th><th>Anzahl</th><th>Anteil</th></tr></thead><tbody>${zeilen}</tbody></table>`;
 }
 
 // ---------------------------------------------------------------
 // Chat Health: 7 Kennzahlen (Durchschnitt "pro Nutzer" über ALLE
 // registrierten Accounts, wie überall sonst im Dashboard – jemand ohne
 // z. B. Gruppenchat zählt mit 0, nicht "fehlt"), + Kohorten-Chart wie
-// Retention (Tag 0 = Registrierungstag).
+// Retention (Tag 1 = Tag nach Registrierung).
 // ---------------------------------------------------------------
 function berechneChatHealthKennzahlen() {
   const { accounts, chatMembers, chatTypById, personIdsMitAccount, friendships, expenses } = rohdaten;
@@ -1251,11 +1300,11 @@ function zeigeChatHealthKennzahlen() {
 }
 
 const CHATHEALTH_KATEGORIEN = {
-  alles: 'Nachrichten', text: 'Text', forderung: 'Forderungen', zahlung: 'Zahlungen',
+  text: 'Text', forderung: 'Forderungen', zahlung: 'Zahlungen',
   erinnerung: 'Erinnerungen', ueberweisung_bestaetigt: 'Bestätigte Überweisungen',
   manuelle_korrektur: 'Manuelle Korrekturen',
 };
-let chatHealthFilterState = { kategorie: 'alles' };
+let chatHealthFilterState = { kategorie: 'text' };
 let chartChatHealth = null;
 
 function berechneChatHealthKohorte() {
@@ -1277,7 +1326,7 @@ function berechneChatHealthKohorte() {
 
   const summeProTag = new Array(groessterOffset + 1).fill(0);
   for (const e of chatHealthEvents) {
-    if (kategorie !== 'alles' && e.kategorie !== kategorie) continue;
+    if (e.kategorie !== kategorie) continue;
     if (!maxOffsetProPerson.has(e.personId)) continue;
     const tag0 = tag0ProPerson.get(e.personId);
     const offset = tageZwischen(tag0, e.tag);
@@ -1287,7 +1336,7 @@ function berechneChatHealthKohorte() {
 
   const tage = [];
   const proNutzer = [];
-  for (let d = 0; d <= groessterOffset; d++) {
+  for (let d = 1; d <= groessterOffset; d++) {
     const nenner = nutzerInKohorte[d] || 0;
     tage.push(d);
     proNutzer.push(nenner ? summeProTag[d] / nenner : 0);
@@ -1319,7 +1368,7 @@ function zeichneChatHealthChart() {
     options: gemeinsameOptionen(`${kategorieLabel} / Nutzer`),
   };
 
-  if (chartChatHealth) { chartChatHealth.data = config.data; chartChatHealth.options = config.options; chartChatHealth.update(); }
+  if (chartChatHealth) { chartChatHealth.data = config.data; chartChatHealth.update(); }
   else { chartChatHealth = new Chart(document.getElementById('chart-chathealth'), config); }
 
   baueTable(document.getElementById('table-chathealth'), tage, proNutzer, kategorieLabel);
@@ -1696,16 +1745,42 @@ function zeichneBankHealth() {
 }
 
 // ── 06 Drops & Eingänge ────────────────────────────────────────────────
+let chartDropsInhalt = null;
+let chartDropsWochen = null;
+let chartDropsErfahrung = null;
 let chartDropsKategorien = null;
 let chartEingangZuordnung = null;
 
 const prozent = (teil, basis) => (basis ? Math.round((teil / basis) * 100) : 0);
+// "Bearbeitet" = irgendetwas vom Nutzer ergänzt (DropBearbeitenScreen).
+const istBearbeitet = (d) => d.hatText || d.hatBild || !!d.erfahrung || d.exakterBetrag;
+
+// Montag der Woche (lokale Zeit) als Schlüssel, z. B. "2026-09-28".
+function wochenStart(iso) {
+  const d = new Date(iso);
+  const montag = new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((d.getDay() + 6) % 7));
+  return `${montag.getFullYear()}-${String(montag.getMonth() + 1).padStart(2, '0')}-${String(montag.getDate()).padStart(2, '0')}`;
+}
 
 function berechneDropHealth() {
   const { drops, eingaenge, kategorieNamen } = rohdaten;
   const aktiv = drops.filter((d) => d.status !== 'geloescht');
   const sichtbar = aktiv.filter((d) => d.sichtbar);
+  const bearbeitet = sichtbar.filter(istBearbeitet);
   const nutzerMitDrops = new Set(aktiv.map((d) => d.accountId));
+  const nutzerMitBearbeitung = new Set(aktiv.filter(istBearbeitet).map((d) => d.accountId));
+
+  const inhalt = [
+    { label: 'Text', wert: sichtbar.filter((d) => d.hatText).length },
+    { label: 'Bild', wert: sichtbar.filter((d) => d.hatBild).length },
+    { label: 'Erfahrung', wert: sichtbar.filter((d) => d.erfahrung).length },
+    { label: 'Exakter Betrag', wert: sichtbar.filter((d) => d.exakterBetrag).length },
+    { label: 'Mind. eins davon', wert: bearbeitet.length },
+  ];
+
+  const mitErfahrung = aktiv.filter((d) => d.erfahrung);
+  const erfahrung = [['mega', 'Mega'], ['gut', 'Gut'], ['okay', 'Okay'], ['nie_wieder', 'Nie wieder']]
+    .map(([key, label]) => ({ label, wert: mitErfahrung.filter((d) => d.erfahrung === key).length }));
 
   const proKategorie = new Map();
   for (const d of aktiv) {
@@ -1717,13 +1792,29 @@ function berechneDropHealth() {
     .sort((a, b) => b.wert - a.wert)
     .slice(0, 8);
 
+  // Letzte 12 Wochen nach Importwoche: Anteil bearbeiteter sichtbarer Drops.
+  const wochen = new Map();
+  for (const d of sichtbar) {
+    if (!d.zeit) continue;
+    const woche = wochenStart(d.zeit);
+    const eintrag = wochen.get(woche) || { gesamt: 0, bearbeitet: 0 };
+    eintrag.gesamt++;
+    if (istBearbeitet(d)) eintrag.bearbeitet++;
+    wochen.set(woche, eintrag);
+  }
+  const wochenListe = [...wochen]
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .slice(-12)
+    .map(([woche, e]) => ({ woche, ...e }));
+
   const eingangAktiv = eingaenge.filter((e) => e.status !== 'geloescht');
   const zuordnung = [['offen', 'Offen'], ['zugeordnet', 'Zugeordnet'], ['ignoriert', 'Ignoriert']]
     .map(([key, label]) => ({ label, wert: eingangAktiv.filter((e) => e.match_status === key).length }));
   const nutzerMitEingang = new Set(eingangAktiv.map((e) => e.account_id));
 
   return {
-    drops, aktiv, sichtbar, nutzerMitDrops, kategorien,
+    drops, aktiv, sichtbar, bearbeitet, nutzerMitDrops, nutzerMitBearbeitung,
+    inhalt, mitErfahrung, erfahrung, kategorien, wochenListe,
     eingangAktiv, zuordnung, nutzerMitEingang,
   };
 }
@@ -1807,6 +1898,44 @@ function zeichneAnteilBalken(canvasId, tabellenId, eintraege, basis, achsenText,
   return neu;
 }
 
+function zeichneDropWochen(wochenListe) {
+  const tabelle = document.getElementById('table-drops-wochen');
+  if (chartDropsWochen) { chartDropsWochen.destroy(); chartDropsWochen = null; }
+  if (wochenListe.length === 0) {
+    tabelle.innerHTML = '<p style="color:var(--text-muted);font-size:12.5px;">Keine Daten.</p>';
+    return;
+  }
+  const labels = wochenListe.map((w) => {
+    const [, monat, tag] = w.woche.split('-');
+    return `${Number(tag)}.${Number(monat)}.`;
+  });
+  const anteile = wochenListe.map((w) => prozent(w.bearbeitet, w.gesamt));
+  const optionen = gemeinsameOptionen('% bearbeitet', 'Importwoche (ab Montag)');
+  optionen.scales.y.max = 100;
+  optionen.plugins.tooltip.callbacks = {
+    title: (items) => `Woche ab ${items[0].label}`,
+    label: (item) => `${item.raw}% bearbeitet (${wochenListe[item.dataIndex].bearbeitet} von ${wochenListe[item.dataIndex].gesamt})`,
+  };
+  chartDropsWochen = new Chart(document.getElementById('chart-drops-wochen'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: anteile,
+        borderColor: css('--series-8'),
+        backgroundColor: css('--series-8'),
+        borderWidth: 2,
+        pointRadius: 3,
+        tension: 0.25,
+      }],
+    },
+    options: optionen,
+  });
+  tabelle.innerHTML = `<table><thead><tr><th>Woche ab</th><th>Sichtbare Drops</th><th>Bearbeitet</th><th>Anteil</th></tr></thead><tbody>${
+    wochenListe.map((w, i) => `<tr><td>${labels[i]}</td><td>${w.gesamt}</td><td>${w.bearbeitet}</td><td>${anteile[i]}%</td></tr>`).join('')
+  }</tbody></table>`;
+}
+
 function zeichneDropHealth() {
   const d = berechneDropHealth();
   const statusEl = document.getElementById('status-drops');
@@ -1820,10 +1949,14 @@ function zeichneDropHealth() {
 
   setze('stat-drops-gesamt', String(d.aktiv.length));
   setze('stat-drops-pro-nutzer', d.nutzerMitDrops.size ? (d.aktiv.length / d.nutzerMitDrops.size).toFixed(1) : '–');
+  setze('stat-drops-bearbeitet', pct(d.bearbeitet.length, d.sichtbar.length), `${d.bearbeitet.length} von ${d.sichtbar.length}`);
+  setze('stat-nutzer-bearbeiten', pct(d.nutzerMitBearbeitung.size, d.nutzerMitDrops.size), `${d.nutzerMitBearbeitung.size} von ${d.nutzerMitDrops.size}`);
   const mitHaendler = d.aktiv.filter((x) => x.hatHaendler).length;
   setze('stat-drops-haendler', pct(mitHaendler, d.aktiv.length), `${mitHaendler} von ${d.aktiv.length}`);
   const geloescht = d.drops.length - d.aktiv.length;
   setze('stat-drops-geloescht', pct(geloescht, d.drops.length), `${geloescht} von ${d.drops.length}`);
+  const vorgemerkt = d.aktiv.filter((x) => x.vorgemerkt).length;
+  setze('stat-drops-vorgemerkt', pct(vorgemerkt, d.aktiv.length), `${vorgemerkt} von ${d.aktiv.length}`);
 
   setze('stat-eingang-gesamt', String(d.eingangAktiv.length));
   const eingangMitAbsender = d.eingangAktiv.filter((e) => e.merchant_id).length;
@@ -1840,6 +1973,9 @@ function zeichneDropHealth() {
       `${d.eingangAktiv.length} Eingänge von ${d.nutzerMitEingang.size} Nutzern`;
   }
 
+  chartDropsInhalt = zeichneAnteilBalken('chart-drops-inhalt', 'table-drops-inhalt', d.inhalt, d.sichtbar.length, 'Sichtbare Drops', chartDropsInhalt);
+  zeichneDropWochen(d.wochenListe);
+  chartDropsErfahrung = zeichneAnteilBalken('chart-drops-erfahrung', 'table-drops-erfahrung', d.erfahrung, d.mitErfahrung.length, 'Drops mit Erfahrung', chartDropsErfahrung);
   chartDropsKategorien = zeichneAnteilBalken('chart-drops-kategorien', 'table-drops-kategorien', d.kategorien, d.aktiv.length, 'Drops', chartDropsKategorien);
   chartEingangZuordnung = zeichneAnteilBalken('chart-eingang-zuordnung', 'table-eingang-zuordnung', d.zuordnung, d.eingangAktiv.length, 'Eingänge', chartEingangZuordnung);
 }
@@ -1951,6 +2087,7 @@ function zeichneAlleChartsNeu() {
   zeichneOrganischChart();
   zeichneEinladungenChart();
   zeichneOnboardingFunnel();
+  zeichneBenachrichtigungenChart();
   zeichneChatHealthChart();
   zeichneBankHealth();
   zeichneDropHealth();
@@ -1964,116 +2101,74 @@ function zeichneAlleChartsNeu() {
 function aktualisiereChartGroessen() {
   [
     chartOeffnungen, chartMinuten, chartWachstum, chartOrganisch,
-    chartOnboarding, chartChatHealth,
+    chartOnboarding, chartBenachrichtigungen, chartChatHealth,
     chartEinladungen, chartVorfinden,
     chartGruppen, chartKosten, chartBonTage, chartBonGroesse,
     // Bank Health liegt im Blatt "finAPI", das beim Laden versteckt ist.
     chartBankTageTeil2, chartBankScreensTeil2, chartBankTageReauth, chartBankScreensReauth,
-    chartDropsKategorien, chartEingangZuordnung,
   ].filter(Boolean).forEach((chart) => chart.resize());
 }
 
-// Reihenfolge wie in der Seitenleiste. "metriken" hat keine eigene Seite:
-// Dort zeigt das Blatt immer genau eine Metrik (01–07).
-const BLAETTER = ['overview', 'metriken', 'bonus', 'finapi', 'support', 'einstellungen'];
-const ERSTE_METRIK = 'retention';
-
-function zielAusHash() {
+function blattAusHash() {
   const hash = location.hash.replace(/^#/, '');
-  if (hash === 'metriken') return { blatt: 'metriken', metrik: ERSTE_METRIK };
-  if (BLAETTER.includes(hash)) return { blatt: hash };
+  if (['metriken', 'finapi', 'bonus', 'support', 'einstellungen'].includes(hash)) return hash;
   const ziel = hash ? document.getElementById(hash) : null;
-  const blatt = ziel?.closest('[data-dashboard-sheet]')?.dataset.dashboardSheet;
-  if (blatt === 'metriken') return { blatt, metrik: ziel.closest('.dashboard-section')?.id ?? ERSTE_METRIK };
-  return { blatt: blatt ?? 'overview' };
+  const blatt = ziel?.closest('[data-dashboard-sheet]');
+  if (blatt) return blatt.dataset.dashboardSheet;
+  return 'metriken';
 }
 
-function setzeMetrikenListe(offen) {
-  document.getElementById('metriken-liste').hidden = !offen;
-  document.getElementById('tab-metriken').setAttribute('aria-expanded', String(offen));
-}
-
-function setzeSeitenleiste(offen) {
-  document.getElementById('seitenleiste').classList.toggle('offen', offen);
-  document.getElementById('seiten-schleier').hidden = !offen;
-  document.getElementById('menue-oeffnen').setAttribute('aria-expanded', String(offen));
-}
-
-function setzeAktivesBlatt(name, { metrik = ERSTE_METRIK, updateUrl = true } = {}) {
-  const aktivesBlatt = BLAETTER.includes(name) ? name : 'overview';
-  const istMetrik = aktivesBlatt === 'metriken';
-  const adresse = istMetrik ? metrik : aktivesBlatt;
+function setzeAktivesBlatt(name, { updateUrl = true } = {}) {
+  const aktivesBlatt = ['metriken', 'finapi', 'bonus', 'support', 'einstellungen'].includes(name) ? name : 'metriken';
 
   document.querySelectorAll('[data-dashboard-tab]').forEach((tab) => {
     const aktiv = tab.dataset.dashboardTab === aktivesBlatt;
     tab.classList.toggle('active', aktiv);
-    if (aktiv) tab.setAttribute('aria-current', 'page');
-    else tab.removeAttribute('aria-current');
+    tab.setAttribute('aria-selected', String(aktiv));
+    tab.tabIndex = aktiv ? 0 : -1;
   });
-  document.getElementById('tab-metriken').classList.toggle('active', istMetrik);
-  document.querySelectorAll('[data-dashboard-metrik]').forEach((link) => {
-    const aktiv = istMetrik && link.dataset.dashboardMetrik === metrik;
-    link.classList.toggle('active', aktiv);
-    if (aktiv) link.setAttribute('aria-current', 'page');
-    else link.removeAttribute('aria-current');
-  });
-  if (istMetrik) setzeMetrikenListe(true);
 
   document.querySelectorAll('[data-dashboard-sheet]').forEach((sheet) => {
     const aktiv = sheet.dataset.dashboardSheet === aktivesBlatt;
     sheet.hidden = !aktiv;
     sheet.classList.toggle('active', aktiv);
   });
-  document.querySelectorAll('[data-dashboard-sheet="metriken"] > .dashboard-section').forEach((section) => {
-    section.hidden = section.id !== metrik;
-  });
 
-  const aktiverLink = document.querySelector('.seiten-nav [aria-current="page"] .seiten-name');
-  document.getElementById('handy-titel').textContent = aktiverLink?.textContent ?? '';
-  setzeSeitenleiste(false);
-
-  if (updateUrl && location.hash !== `#${adresse}`) {
-    history.pushState(null, '', `#${adresse}`);
+  if (updateUrl && location.hash !== `#${aktivesBlatt}`) {
+    history.pushState(null, '', `#${aktivesBlatt}`);
   }
 
   requestAnimationFrame(() => {
     aktualisiereChartGroessen();
     const hash = location.hash.replace(/^#/, '');
-    const ziel = hash && hash !== adresse ? document.getElementById(hash) : null;
+    const ziel = hash && hash !== aktivesBlatt ? document.getElementById(hash) : null;
     if (ziel?.closest('[data-dashboard-sheet]')?.dataset.dashboardSheet === aktivesBlatt) {
       ziel.scrollIntoView({ block: 'start' });
-    } else {
-      window.scrollTo(0, 0);
     }
   });
 }
 
 function initialisiereBlaetter() {
-  document.querySelectorAll('[data-dashboard-tab]').forEach((tab) => {
+  const tabs = [...document.querySelectorAll('[data-dashboard-tab]')];
+  tabs.forEach((tab, index) => {
     tab.addEventListener('click', () => setzeAktivesBlatt(tab.dataset.dashboardTab));
-  });
-  document.querySelectorAll('[data-dashboard-metrik]').forEach((link) => {
-    link.addEventListener('click', () => setzeAktivesBlatt('metriken', { metrik: link.dataset.dashboardMetrik }));
-  });
-
-  // "Metriken" klappt nur die Liste auf und zu, die Seite wechselt erst die Auswahl.
-  document.getElementById('tab-metriken').addEventListener('click', () => {
-    setzeMetrikenListe(document.getElementById('metriken-liste').hidden);
-  });
-
-  document.getElementById('menue-oeffnen').addEventListener('click', () => setzeSeitenleiste(true));
-  document.getElementById('seiten-schleier').addEventListener('click', () => setzeSeitenleiste(false));
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') setzeSeitenleiste(false);
+    tab.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      e.preventDefault();
+      const richtung = e.key === 'ArrowRight' ? 1 : -1;
+      const naechsterIndex = (index + richtung + tabs.length) % tabs.length;
+      tabs[naechsterIndex].focus();
+      setzeAktivesBlatt(tabs[naechsterIndex].dataset.dashboardTab);
+    });
   });
 
-  const zuHash = () => {
-    const { blatt, metrik } = zielAusHash();
-    setzeAktivesBlatt(blatt, { metrik, updateUrl: false });
-  };
-  zuHash();
-  window.addEventListener('hashchange', zuHash);
-  window.addEventListener('popstate', zuHash);
+  document.querySelectorAll('.section-nav a').forEach((link) => {
+    link.addEventListener('click', () => setzeAktivesBlatt('metriken', { updateUrl: false }));
+  });
+
+  setzeAktivesBlatt(blattAusHash(), { updateUrl: false });
+  window.addEventListener('hashchange', () => setzeAktivesBlatt(blattAusHash(), { updateUrl: false }));
+  window.addEventListener('popstate', () => setzeAktivesBlatt(blattAusHash(), { updateUrl: false }));
 }
 
 function aktualisiereThemeButtons() {
@@ -2116,7 +2211,7 @@ function initialisiereEinstellungen() {
   });
 }
 
-// Wartungsarbeiten-Schalter: schreibt über dashboard_setze_wartungsmodus
+// Wartungsarbeiten-Schalter: schreibt über server.mjs (service_role)
 // nach app_config, die App bekommt die Änderung per Supabase Realtime
 // sofort mit (siehe lib/wartungsmodus.ts) – kein Server-Neustart hier
 // nötig, nur beim allerersten Laden der Seite wird der Startwert gesetzt.
@@ -2174,7 +2269,7 @@ function datumWien(iso) {
 
 // ---------------------------------------------------------------
 // Blatt "finAPI" → Kosten (dashboard/sql/finapi_kosten.sql,
-// finapiKosten.js, Preise aus dashboard_finapi_preise).
+// dashboard/finapiKosten.mjs). Server rechnet, die Seite zeigt nur an.
 // ---------------------------------------------------------------
 let kostenStand = null; // { quelle, stand, monate, naechsterSprung }
 let chartKosten = null;
@@ -2328,8 +2423,8 @@ async function initialisiereKosten() {
 // ---------------------------------------------------------------
 // Blatt "finAPI" → Inaktivitäts-Trennung (dashboard/sql/abo_entfernen.sql)
 // ---------------------------------------------------------------
-// Lesen, Vorschau und Speichern über die Dashboard-Funktionen in der
-// Datenbank. Vorschau und Lauf zählen mit derselben Datenbankfunktion
+// Lesen, Vorschau und Speichern über server.mjs (service_role-Key bleibt
+// dort). Vorschau und Lauf zählen mit derselben Datenbankfunktion
 // bank_inaktive_verbindungen.
 let trennungStand = null; // { einstellungen, betroffen, monatsletzter }
 
@@ -3117,7 +3212,6 @@ document.querySelectorAll('.table-toggle').forEach((btn) => {
 async function main() {
   // Die Inaktivitäts-Trennung lädt unabhängig von den Metrik-Daten
   // (eigener Endpunkt /trennung.json) – ein Fehler dort blockiert es nicht.
-  void initialisiereNutzerListe();
   void initialisiereTrennung();
   void initialisiereKosten();
   void proLaden();
@@ -3200,6 +3294,7 @@ async function main() {
   zeichneOnboardingFunnel();
 
   zeigeBenachrichtigungenAktiviertAnteil();
+  zeichneBenachrichtigungenChart();
 
   zeigeChatHealthKennzahlen();
   zeichneChatHealthChart();
