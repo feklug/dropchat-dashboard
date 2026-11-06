@@ -1,5 +1,4 @@
-// finAPI-Kosten: Rechnung (Blatt "finAPI" → Kosten) – Browser-Fassung von
-// dashboard/finapiKosten.mjs, ohne Preisliste. Die Preise kommen aus der
+// finAPI-Kosten: Rechnung (Blatt "finAPI" → Kosten), ohne Preisliste. Die Preise kommen aus der
 // Datenbank (dashboard_finapi_preise, dashboard/sql/dashboard_lesen.sql), damit
 // ausgehandelte Konditionen nicht im öffentlichen Code stehen.
 //

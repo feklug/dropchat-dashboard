@@ -157,20 +157,6 @@
   }
   .page { max-width: 1160px; margin: 0 auto; padding: 32px 24px 72px; }
 
-  .dashboard-header {
-    background: var(--surface-1);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    box-shadow: var(--shadow);
-    padding: 24px 26px 22px;
-    margin-bottom: 30px;
-  }
-  .dashboard-title-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-  }
   .dashboard-brand {
     display: flex;
     align-items: center;
@@ -184,54 +170,6 @@
     box-shadow: inset 0 -7px 12px rgba(76, 29, 149, 0.22), 0 8px 18px rgba(139, 92, 246, 0.24);
     flex: 0 0 auto;
   }
-  .dashboard-header h1 {
-    font-size: 34px;
-    line-height: 1;
-    font-weight: 800;
-    margin: 0;
-  }
-  .dashboard-header p { font-size: 13px; color: var(--text-secondary); margin: 10px 0 0; }
-  .dashboard-header code {
-    font-size: 12px;
-    color: var(--text-primary);
-    background: var(--surface-3);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 2px 6px;
-  }
-  .dashboard-tabs {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 8px;
-    margin-top: 22px;
-    padding-top: 18px;
-    border-top: 1px solid var(--gridline);
-  }
-  .dashboard-tab {
-    appearance: none;
-    min-height: 42px;
-    padding: 9px 14px;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    background: var(--surface-2);
-    color: var(--text-secondary);
-    font: inherit;
-    font-size: 13px;
-    font-weight: 800;
-    cursor: pointer;
-    justify-content: center;
-    min-width: 0;
-    text-align: center;
-    white-space: nowrap;
-    width: 100%;
-  }
-  .dashboard-tab:hover:not(.active) { background: var(--surface-3); color: var(--text-primary); }
-  .dashboard-tab.active {
-    background: var(--text-primary);
-    border-color: var(--text-primary);
-    color: var(--surface-1);
-  }
-  .dashboard-tab:focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; }
   .dashboard-sheet[hidden] { display: none; }
   .dashboard-sheet {
     width: 100%;
@@ -745,12 +683,9 @@
 
   @media (max-width: 720px) {
     .page { padding: 18px 14px 48px; }
-    .dashboard-header { align-items: flex-start; padding: 20px; border-radius: 12px; }
     .dashboard-section { padding: 18px 16px; border-radius: 14px; }
     .dashboard-section::before { left: 16px; }
     .section-header { grid-template-columns: auto 1fr auto; gap: 10px; }
-    .dashboard-title-row { align-items: flex-start; }
-    .dashboard-header h1 { font-size: 28px; }
     .section-title { font-size: 21px; }
     .filter { flex: 1 1 100%; }
     .segmented { width: 100%; }
@@ -772,26 +707,6 @@
     background: var(--tblr-bg-surface-secondary, #f6f8fb);
   }
   .page-body { margin-top: 0; }
-  .dashboard-header {
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    background: var(--tblr-bg-surface, #fff);
-    border: 0;
-    border-bottom: 1px solid var(--tblr-border-color, #dadfe5);
-    border-radius: 0;
-    box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .03);
-    margin: 0;
-    padding: 14px 0 0;
-  }
-  .dashboard-title-row {
-    max-width: none;
-    width: 100%;
-    margin: 0;
-    padding: 0 24px;
-    flex-wrap: wrap;
-  }
-  .dashboard-brand { min-height: 44px; }
   .app-mark {
     width: 40px;
     height: 40px;
@@ -810,61 +725,11 @@
     font-size: 17px;
     font-weight: 800;
   }
-  .dashboard-header h1 {
-    font-size: 20px;
-    line-height: 1.2;
-    font-weight: 700;
-    color: var(--tblr-body-color, #182433);
-  }
-  .dashboard-header p {
-    color: var(--tblr-secondary-color, #667382);
-    font-size: 12px;
-    margin-top: 2px;
-  }
-  .dashboard-header code,
   .info-value code,
   .settings-note code {
     color: var(--tblr-code-color, #d63384);
     background: var(--tblr-bg-surface-secondary, #f6f8fb);
     border-color: var(--tblr-border-color, #dadfe5);
-  }
-  .dashboard-tabs {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    max-width: none;
-    width: 100%;
-    margin: 14px 0 0;
-    padding: 0 24px;
-    border-top: 0;
-    gap: 0;
-  }
-  .dashboard-tab {
-    display: inline-flex;
-    align-items: center;
-    gap: .45rem;
-    border: 0;
-    border-bottom: 2px solid transparent;
-    border-radius: 0;
-    background: transparent;
-    color: var(--tblr-secondary-color, #667382);
-    font-size: 14px;
-    font-weight: 600;
-    min-height: 44px;
-    justify-content: center;
-    padding: 10px 16px;
-  }
-  .dashboard-tab:hover:not(.active) {
-    background: rgba(var(--tblr-primary-rgb, 32, 107, 196), .04);
-    color: var(--tblr-primary, #206bc4);
-  }
-  .dashboard-tab.active {
-    color: var(--tblr-primary, #206bc4);
-    background: transparent;
-    border-bottom-color: var(--tblr-primary, #206bc4);
-  }
-  .dashboard-tab:focus-visible {
-    outline: 2px solid rgba(var(--tblr-primary-rgb, 32, 107, 196), .35);
-    outline-offset: -2px;
   }
   main {
     max-width: none;
@@ -1171,16 +1036,8 @@
 
   @media (max-width: 720px) {
     .page { padding: 0; }
-    .dashboard-header { padding-top: 12px; }
-    .dashboard-title-row,
-    .dashboard-tabs,
     main { padding-inline: 14px; }
     main { padding-top: 18px; padding-bottom: 44px; }
-    .dashboard-tab {
-      gap: .3rem;
-      padding-inline: 6px;
-      font-size: 12px;
-    }
     .section-body { padding: 16px; }
     .filter-row { grid-template-columns: 1fr; }
     .chart-card .chart-canvas-wrap,
@@ -1190,54 +1047,244 @@
 
   /* ── Handy (dashboard_live) ─────────────────────────────────────────── */
   @media (max-width: 720px) {
-    /* Kopf bleibt oben stehen – deshalb so flach wie möglich. */
-    .dashboard-header { padding-top: calc(8px + env(safe-area-inset-top)); }
-    .dashboard-title-row { flex-wrap: nowrap; gap: 8px; align-items: center; }
-    .dashboard-brand { min-height: 0; gap: 10px; min-width: 0; }
-    .app-mark { width: 32px; height: 32px; flex: 0 0 auto; }
-    .dashboard-header h1 { font-size: 18px; line-height: 1.2; margin: 0; }
-    .dashboard-header p { font-size: 12px; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .dashboard-brand > div { min-width: 0; }
-    .dashboard-header .badge { display: none; }
-    #abmelden { white-space: nowrap; }
-
-    /* Reiter: eine Zeile, seitlich wischen statt umbrechen. */
-    .dashboard-tabs {
-      display: flex;
-      flex-wrap: nowrap; /* Tablers .nav bricht sonst um */
-      margin-top: 8px;
-      padding-inline: 8px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
-    }
-    .dashboard-tabs::-webkit-scrollbar { display: none; }
-    .dashboard-tab {
-      flex: 0 0 auto;
-      width: auto; /* sonst 100 % aus der Desktop-Regel */
-      white-space: nowrap;
-      font-size: 13px;
-      padding: 10px 12px;
-      min-height: 44px;
-    }
-
     /* iOS vergrößert die Seite beim Antippen von Feldern unter 16 px. */
     input, select, textarea { font-size: 16px !important; }
+  }
+  /* ── Seitenleiste ───────────────────────────────────────────────────── */
+  .page {
+    display: grid;
+    grid-template-columns: 264px minmax(0, 1fr);
+    align-items: start;
+  }
+  .seitenleiste {
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100vh;
+    height: 100dvh;
+    padding: 20px 14px 14px;
+    overflow-y: auto;
+    background: var(--tblr-bg-surface, #fff);
+    border-right: 1px solid var(--tblr-border-color, #dadfe5);
+  }
+  .seitenleiste .dashboard-brand { padding-inline: 8px; }
+  .seitenleiste h1 {
+    color: var(--tblr-body-color, #182433);
+    font-size: 16px;
+    line-height: 1.2;
+    font-weight: 700;
+    margin: 0;
+  }
+  .seiten-nav { display: flex; flex-direction: column; gap: 2px; flex: 1 0 auto; }
+  .seiten-link,
+  .seiten-unterlink {
+    appearance: none;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--tblr-secondary-color, #667382);
+    font: inherit;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+  }
+  .seiten-link { gap: 10px; min-height: 40px; padding: 8px 10px; font-size: 14px; }
+  .seiten-link > .ti:first-child { font-size: 18px; }
+  .seiten-unterlink { gap: 8px; min-height: 34px; padding: 6px 10px; font-size: 13px; }
+  .seiten-link:hover,
+  .seiten-unterlink:hover {
+    background: var(--tblr-bg-surface-secondary, #f6f8fb);
+    color: var(--tblr-body-color, #182433);
+  }
+  .seiten-link.active,
+  .seiten-unterlink.active {
+    background: rgba(var(--tblr-primary-rgb, 32, 107, 196), .1);
+    color: var(--tblr-primary, #206bc4);
+  }
+  .seiten-link:focus-visible,
+  .seiten-unterlink:focus-visible {
+    outline: 2px solid rgba(var(--tblr-primary-rgb, 32, 107, 196), .35);
+    outline-offset: -2px;
+  }
+  .seiten-pfeil { margin-left: auto; font-size: 16px; transition: transform .15s ease; }
+  [aria-expanded="true"] > .seiten-pfeil { transform: rotate(180deg); }
+  .seiten-unterliste {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 2px 0 6px 19px;
+    padding-left: 8px;
+    border-left: 1px solid var(--tblr-border-color, #dadfe5);
+  }
+  .seiten-unterliste[hidden] { display: none; }
+  .nutzer-tabelle { margin-top: 14px; }
+  .seiten-zaehler {
+    margin-left: auto;
+    min-width: 20px;
+    padding: 0 6px;
+    border-radius: 10px;
+    background: var(--tblr-danger, #d63939);
+    color: #fff;
+    font-size: 11.5px;
+    line-height: 20px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .section-title .seiten-zaehler { display: inline-block; margin-left: 8px; vertical-align: 1px; font-weight: 600; }
+  .seiten-zaehler[hidden] { display: none; }
+  .seiten-nummer { font-size: 11px; font-variant-numeric: tabular-nums; opacity: .7; }
+  .seiten-fuss {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 8px 0;
+    border-top: 1px solid var(--tblr-border-color, #dadfe5);
+  }
+  .seiten-fuss p {
+    color: var(--tblr-secondary-color, #667382);
+    font-size: 12px;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .handy-kopf, .seiten-schleier { display: none; }
+  .dashboard-section[hidden] { display: none; }
+  .section-header:not([data-toggle-section]) { cursor: default; user-select: text; }
+  .section-header:not([data-toggle-section]):hover { background: var(--tblr-card-bg, #fff); }
+
+  /* Handy: Leiste fährt über den Menüknopf von links herein. */
+  @media (max-width: 720px) {
+    .page { display: block; }
+    .dashboard-section { scroll-margin-top: calc(64px + env(safe-area-inset-top)); }
+    .handy-kopf {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 52px;
+      padding: env(safe-area-inset-top) 10px 0;
+      background: var(--tblr-bg-surface, #fff);
+      border-bottom: 1px solid var(--tblr-border-color, #dadfe5);
+    }
+    .handy-kopf strong { font-size: 15px; font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .handy-menue {
+      appearance: none;
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border: 0;
+      background: transparent;
+      color: var(--tblr-body-color, #182433);
+      font-size: 22px;
+    }
+    .seitenleiste {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 40;
+      width: min(284px, 84vw);
+      padding-top: calc(16px + env(safe-area-inset-top));
+      padding-bottom: calc(14px + env(safe-area-inset-bottom));
+      visibility: hidden;
+      transform: translateX(-100%);
+      transition: transform .2s ease, visibility .2s;
+    }
+    .seitenleiste.offen { visibility: visible; transform: none; }
+    .seiten-schleier {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: block;
+      background: rgba(0, 0, 0, .4);
+    }
+    .seiten-schleier[hidden] { display: none; }
+    .seiten-link { min-height: 44px; }
+    .seiten-unterlink { min-height: 44px; }
   }
 </style>
 </head>
 <body>
   <div class="page">
-    <div class="dashboard-header">
-      <div class="dashboard-title-row">
-        <div class="dashboard-brand">
-          <span class="app-mark" aria-hidden="true"></span>
-          <div>
-            <h1>DropChat Dashboard</h1>
-            <p>Angemeldet als <span id="angemeldet-als"></span></p>
-          </div>
+    <div class="handy-kopf">
+      <button class="handy-menue" type="button" id="menue-oeffnen" aria-label="Menü öffnen" aria-controls="seitenleiste" aria-expanded="false">
+        <i class="ti ti-menu-2" aria-hidden="true"></i>
+      </button>
+      <strong id="handy-titel">Overview</strong>
+    </div>
+    <div class="seiten-schleier" id="seiten-schleier" hidden></div>
+
+    <aside class="seitenleiste" id="seitenleiste">
+      <div class="dashboard-brand">
+        <span class="app-mark" aria-hidden="true"></span>
+        <h1>DropChat Dashboard</h1>
+      </div>
+      <nav class="seiten-nav" aria-label="Dashboard">
+        <button class="seiten-link" type="button" id="tab-overview" data-dashboard-tab="overview">
+          <i class="ti ti-layout-dashboard" aria-hidden="true"></i>
+          <span class="seiten-name">Overview</span>
+        </button>
+        <button class="seiten-link" type="button" id="tab-metriken" aria-controls="metriken-liste" aria-expanded="false">
+          <i class="ti ti-chart-bar" aria-hidden="true"></i>
+          <span class="seiten-name">Metriken</span>
+          <i class="ti ti-chevron-down seiten-pfeil" aria-hidden="true"></i>
+        </button>
+        <div class="seiten-unterliste" id="metriken-liste" hidden>
+          <button class="seiten-unterlink" type="button" data-dashboard-metrik="retention">
+            <span class="seiten-nummer">01</span>
+            <span class="seiten-name">Retention</span>
+          </button>
+          <button class="seiten-unterlink" type="button" data-dashboard-metrik="wachstum">
+            <span class="seiten-nummer">02</span>
+            <span class="seiten-name">Wachstum</span>
+          </button>
+          <button class="seiten-unterlink" type="button" data-dashboard-metrik="intern">
+            <span class="seiten-nummer">03</span>
+            <span class="seiten-name">Internes Marketing</span>
+          </button>
+          <button class="seiten-unterlink" type="button" data-dashboard-metrik="extern">
+            <span class="seiten-nummer">04</span>
+            <span class="seiten-name">Externes Marketing</span>
+          </button>
+          <button class="seiten-unterlink" type="button" data-dashboard-metrik="onboarding">
+            <span class="seiten-nummer">05</span>
+            <span class="seiten-name">Onboarding</span>
+          </button>
+          <button class="seiten-unterlink" type="button" data-dashboard-metrik="drops">
+            <span class="seiten-nummer">06</span>
+            <span class="seiten-name">Drops &amp; Eingänge</span>
+          </button>
+          <button class="seiten-unterlink" type="button" data-dashboard-metrik="chathealth">
+            <span class="seiten-nummer">07</span>
+            <span class="seiten-name">Chat Health</span>
+          </button>
         </div>
-        <div class="d-flex align-items-center gap-2">
+        <button class="seiten-link" type="button" id="tab-bonus" data-dashboard-tab="bonus">
+          <i class="ti ti-gift" aria-hidden="true"></i>
+          <span class="seiten-name">Bonusprogramm</span>
+        </button>
+        <button class="seiten-link" type="button" id="tab-finapi" data-dashboard-tab="finapi">
+          <i class="ti ti-building-bank" aria-hidden="true"></i>
+          <span class="seiten-name">finAPI</span>
+        </button>
+        <button class="seiten-link" type="button" id="tab-support" data-dashboard-tab="support">
+          <i class="ti ti-help-circle" aria-hidden="true"></i>
+          <span class="seiten-name">Support</span>
+          <span class="seiten-zaehler" id="support-offen" hidden></span>
+        </button>
+        <button class="seiten-link" type="button" id="tab-einstellungen" data-dashboard-tab="einstellungen">
+          <i class="ti ti-settings" aria-hidden="true"></i>
+          <span class="seiten-name">Einstellungen</span>
+        </button>
+      </nav>
+      <div class="seiten-fuss">
+        <p>Angemeldet als <span id="angemeldet-als"></span></p>
+        <div class="d-flex align-items-center justify-content-between gap-2">
           <button class="btn btn-outline-secondary btn-sm" type="button" id="abmelden">
             <i class="ti ti-logout me-1" aria-hidden="true"></i>
             Abmelden
@@ -1248,40 +1295,52 @@
           </span>
         </div>
       </div>
-      <nav class="dashboard-tabs nav nav-tabs" role="tablist" aria-label="Dashboard-Blätter">
-        <button class="dashboard-tab nav-link active" type="button" role="tab" id="tab-metriken" aria-controls="metriken" aria-selected="true" data-dashboard-tab="metriken">
-          <i class="ti ti-chart-bar" aria-hidden="true"></i>
-          Metriken (01-07)
-        </button>
-        <button class="dashboard-tab nav-link" type="button" role="tab" id="tab-finapi" aria-controls="finapi" aria-selected="false" data-dashboard-tab="finapi">
-          <i class="ti ti-building-bank" aria-hidden="true"></i>
-          finAPI
-        </button>
-        <button class="dashboard-tab nav-link" type="button" role="tab" id="tab-bonus" aria-controls="bonus" aria-selected="false" data-dashboard-tab="bonus">
-          <i class="ti ti-gift" aria-hidden="true"></i>
-          Bonusprogramm
-        </button>
-        <button class="dashboard-tab nav-link" type="button" role="tab" id="tab-support" aria-controls="support" aria-selected="false" data-dashboard-tab="support">
-          <i class="ti ti-help-circle" aria-hidden="true"></i>
-          Support
-        </button>
-        <button class="dashboard-tab nav-link" type="button" role="tab" id="tab-einstellungen" aria-controls="einstellungen" aria-selected="false" data-dashboard-tab="einstellungen">
-          <i class="ti ti-settings" aria-hidden="true"></i>
-          Einstellungen
-        </button>
-      </nav>
-    </div>
+    </aside>
 
     <main>
-      <div class="dashboard-sheet active" data-dashboard-sheet="metriken" id="metriken" role="tabpanel" aria-labelledby="tab-metriken">
-        <section class="dashboard-section card collapsed" data-section="retention" id="retention">
-      <div class="section-header" role="button" tabindex="0" aria-expanded="false" data-toggle-section>
+      <div class="dashboard-sheet active" data-dashboard-sheet="overview" id="overview" aria-labelledby="tab-overview">
+        <section class="dashboard-section card" data-section="overview">
+          <div class="section-header">
+            <span class="section-marker badge">OVR</span>
+            <div>
+              <h2 class="section-title">Overview</h2>
+              <p class="section-sub">Registrierte Nutzer, die neuesten zuerst</p>
+            </div>
+          </div>
+
+          <div class="section-body">
+            <div id="nutzer-status" class="alert alert-info status-line">Lade Nutzer…</div>
+
+            <div class="stat-grid">
+              <div class="stat-tile card">
+                <span class="stat-value" id="stat-nutzer-anzahl">–</span>
+                <span class="stat-label">Nutzer</span>
+              </div>
+            </div>
+
+            <input type="search" class="form-control" id="nutzer-suche" placeholder="Name, E-Mail oder Telefon" aria-label="Nutzer suchen" autocomplete="off" />
+
+            <div class="pro-tabelle-scroll nutzer-tabelle">
+              <table class="pro-tabelle">
+                <thead>
+                  <tr><th>Name</th><th>E-Mail</th><th>Telefon</th><th>Registriert</th></tr>
+                </thead>
+                <tbody id="nutzer-liste"></tbody>
+              </table>
+            </div>
+            <p class="support-leer" id="nutzer-leer" hidden>Keine Nutzer gefunden.</p>
+          </div>
+        </section>
+      </div>
+
+      <div class="dashboard-sheet" data-dashboard-sheet="metriken" id="metriken" aria-labelledby="tab-metriken" hidden>
+        <section class="dashboard-section card" data-section="retention" id="retention">
+      <div class="section-header">
         <span class="section-marker badge">01</span>
         <div>
           <h2 class="section-title">Retention</h2>
           <p class="section-sub">Öffnungen &amp; aktive Verweildauer</p>
         </div>
-        <span class="chevron" aria-hidden="true">▾</span>
       </div>
 
       <div class="section-body">
@@ -1361,14 +1420,13 @@
       </div>
     </section>
 
-    <section class="dashboard-section card collapsed" data-section="wachstum" id="wachstum">
-      <div class="section-header" role="button" tabindex="0" aria-expanded="false" data-toggle-section>
+    <section class="dashboard-section card" data-section="wachstum" id="wachstum">
+      <div class="section-header">
         <span class="section-marker badge">02</span>
         <div>
           <h2 class="section-title">Wachstum</h2>
           <p class="section-sub">Neue Registrierungen pro Tag seit der allerersten Registrierung</p>
         </div>
-        <span class="chevron" aria-hidden="true">▾</span>
       </div>
 
       <div class="section-body">
@@ -1422,14 +1480,13 @@
       </div>
     </section>
 
-    <section class="dashboard-section card collapsed" data-section="intern" id="intern">
-      <div class="section-header" role="button" tabindex="0" aria-expanded="false" data-toggle-section>
+    <section class="dashboard-section card" data-section="intern" id="intern">
+      <div class="section-header">
         <span class="section-marker badge">03</span>
         <div>
           <h2 class="section-title">Internes Marketing</h2>
           <p class="section-sub">Wachstum aus der Nutzerbasis heraus: Invite Loop</p>
         </div>
-        <span class="chevron" aria-hidden="true">▾</span>
       </div>
 
       <div class="section-body">
@@ -1560,14 +1617,13 @@
       </div>
     </section>
 
-    <section class="dashboard-section card collapsed" data-section="extern" id="extern">
-      <div class="section-header" role="button" tabindex="0" aria-expanded="false" data-toggle-section>
+    <section class="dashboard-section card" data-section="extern" id="extern">
+      <div class="section-header">
         <span class="section-marker badge">04</span>
         <div>
           <h2 class="section-title">Externes Marketing</h2>
           <p class="section-sub">Promoter Programm</p>
         </div>
-        <span class="chevron" aria-hidden="true">▾</span>
       </div>
 
       <div class="section-body">
@@ -1697,14 +1753,13 @@
       </div>
     </section>
 
-    <section class="dashboard-section card collapsed" data-section="onboarding" id="onboarding">
-      <div class="section-header" role="button" tabindex="0" aria-expanded="false" data-toggle-section>
+    <section class="dashboard-section card" data-section="onboarding" id="onboarding">
+      <div class="section-header">
         <span class="section-marker badge">05</span>
         <div>
           <h2 class="section-title">Onboarding</h2>
           <p class="section-sub">Funnel „Registrieren Teil 1" – wie viele Personen erreichen jeden Schritt (gezählt über anonyme Geräte-ID, nicht erst ab Login)</p>
         </div>
-        <span class="chevron" aria-hidden="true">▾</span>
       </div>
 
       <div class="section-body">
@@ -1723,7 +1778,7 @@
 
         <div class="subsection">
           <h3 class="subsection-title">Freigaben und Benachrichtigungen</h3>
-          <p class="subsection-sub">account.kontakte_zugriff und account.mitteilungen_zugriff (OS-Berechtigungen), notification_settings (Einstellung pro Typ)</p>
+          <p class="subsection-sub">account.kontakte_zugriff und account.mitteilungen_zugriff (Betriebssystem), notification_settings (Schalter in der App)</p>
 
           <div class="stat-grid compact">
             <div class="stat-tile card">
@@ -1732,104 +1787,52 @@
             </div>
             <div class="stat-tile card">
               <span class="stat-value" id="stat-mitteilungen-freigegeben">–</span>
-              <span class="stat-label">der Nutzer haben Mitteilungen freigegeben</span>
+              <span class="stat-label">der Nutzer haben Benachrichtigungen aktiviert (Betriebssystem)</span>
             </div>
             <div class="stat-tile card">
-              <span class="stat-value" id="stat-benachrichtigungen-aktiviert">–</span>
-              <span class="stat-label">der Nutzer haben Benachrichtigungen aktiviert</span>
+              <span class="stat-value" id="stat-push-aktiviert">–</span>
+              <span class="stat-label">der Nutzer haben Push-Benachrichtigungen aktiviert (in der App)</span>
             </div>
-          </div>
-
-          <div class="chart-grid">
-            <figure class="chart-card card">
-              <div class="card-header chart-card-head">
-                <h3 class="card-title">Aktivierungsrate pro Benachrichtigungstyp</h3>
-                <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-benachrichtigungen"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
-              </div>
-              <div class="card-body chart-canvas-wrap-tall"><canvas id="chart-benachrichtigungen"></canvas></div>
-              <div class="table-view" id="table-benachrichtigungen" hidden></div>
-            </figure>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="dashboard-section card collapsed" data-section="drops" id="drops">
-      <div class="section-header" role="button" tabindex="0" aria-expanded="false" data-toggle-section>
+    <section class="dashboard-section card" data-section="drops" id="drops">
+      <div class="section-header">
         <span class="section-marker badge">06</span>
         <div>
           <h2 class="section-title">Drops &amp; Eingänge</h2>
-          <p class="section-sub">Was Nutzer aus ihren Drops machen und wie gut Eingänge zugeordnet werden (drops, eingang). Gelöschte zählen nur bei „gelöscht“ mit.</p>
+          <p class="section-sub">Wie viele Drops und Eingänge es gibt und wie gut sie erkannt und zugeordnet werden (drops, eingang). Gelöschte zählen nur bei „gelöscht“ mit.</p>
         </div>
-        <span class="chevron" aria-hidden="true">▾</span>
       </div>
 
       <div class="section-body">
         <div id="status-drops" class="alert alert-info status-line">Lade Daten…</div>
 
-        <div class="stat-grid">
-          <div class="stat-tile card">
-            <span class="stat-value" id="stat-drops-gesamt">–</span>
-            <span class="stat-label">Drops (nicht gelöscht)</span>
-          </div>
-          <div class="stat-tile card">
-            <span class="stat-value" id="stat-drops-pro-nutzer">–</span>
-            <span class="stat-label">Drops pro Nutzer mit Drops</span>
-          </div>
-          <div class="stat-tile card">
-            <span class="stat-value" id="stat-drops-bearbeitet">–</span>
-            <span class="stat-label">der sichtbaren Drops bearbeitet (Text, Bild, Erfahrung oder exakter Betrag)</span>
-          </div>
-          <div class="stat-tile card">
-            <span class="stat-value" id="stat-nutzer-bearbeiten">–</span>
-            <span class="stat-label">der Nutzer mit Drops haben mind. einen bearbeitet</span>
-          </div>
-          <div class="stat-tile card">
-            <span class="stat-value" id="stat-drops-haendler">–</span>
-            <span class="stat-label">der Drops mit erkanntem Händler</span>
-          </div>
-          <div class="stat-tile card">
-            <span class="stat-value" id="stat-drops-geloescht">–</span>
-            <span class="stat-label">aller Drops gelöscht</span>
-          </div>
-          <div class="stat-tile card">
-            <span class="stat-value" id="stat-drops-vorgemerkt">–</span>
-            <span class="stat-label">der Drops noch vorgemerkt (nicht gebucht)</span>
-          </div>
-        </div>
-
         <div class="subsection">
-          <h3 class="subsection-title">Sichtbare Drops</h3>
-          <p class="subsection-sub">Anteil der für Freunde sichtbaren Drops mit dem jeweiligen Inhalt. Einen Ort speichert die App bei Drops (noch) nicht.</p>
+          <h3 class="subsection-title">Drops</h3>
+
+          <div class="stat-grid">
+            <div class="stat-tile card">
+              <span class="stat-value" id="stat-drops-gesamt">–</span>
+              <span class="stat-label">Drops gesamt</span>
+            </div>
+            <div class="stat-tile card">
+              <span class="stat-value" id="stat-drops-pro-nutzer">–</span>
+              <span class="stat-label">Drops pro Nutzer mit Drops</span>
+            </div>
+            <div class="stat-tile card">
+              <span class="stat-value" id="stat-drops-haendler">–</span>
+              <span class="stat-label">der Drops mit erkanntem Händler</span>
+            </div>
+            <div class="stat-tile card">
+              <span class="stat-value" id="stat-drops-geloescht">–</span>
+              <span class="stat-label">aller Drops gelöscht</span>
+            </div>
+          </div>
 
           <div class="chart-grid">
-            <figure class="chart-card card">
-              <div class="card-header chart-card-head">
-                <h3 class="card-title">Womit Drops bearbeitet werden</h3>
-                <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-drops-inhalt"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
-              </div>
-              <div class="card-body chart-canvas-wrap-tall"><canvas id="chart-drops-inhalt"></canvas></div>
-              <div class="table-view" id="table-drops-inhalt" hidden></div>
-            </figure>
-
-            <figure class="chart-card card">
-              <div class="card-header chart-card-head">
-                <h3 class="card-title">Bearbeitet pro Woche</h3>
-                <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-drops-wochen"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
-              </div>
-              <div class="card-body chart-canvas-wrap"><canvas id="chart-drops-wochen"></canvas></div>
-              <div class="table-view" id="table-drops-wochen" hidden></div>
-            </figure>
-
-            <figure class="chart-card card">
-              <div class="card-header chart-card-head">
-                <h3 class="card-title">Erfahrung</h3>
-                <button class="btn btn-outline-secondary btn-sm table-toggle" data-target="table-drops-erfahrung"><i class="ti ti-table me-1" aria-hidden="true"></i>Tabelle</button>
-              </div>
-              <div class="card-body chart-canvas-wrap-tall"><canvas id="chart-drops-erfahrung"></canvas></div>
-              <div class="table-view" id="table-drops-erfahrung" hidden></div>
-            </figure>
-
             <figure class="chart-card card">
               <div class="card-header chart-card-head">
                 <h3 class="card-title">Top-Kategorien</h3>
@@ -1843,22 +1846,23 @@
 
         <div class="subsection">
           <h3 class="subsection-title">Eingänge</h3>
-          <p class="subsection-sub">Zuordnung: „zugeordnet“ = hat einen Split reduziert (Überweisung erkannt), „ignoriert“ = Vorschlag abgelehnt, „offen“ = nichts passiert.</p>
 
           <div class="stat-grid">
             <div class="stat-tile card">
               <span class="stat-value" id="stat-eingang-gesamt">–</span>
-              <span class="stat-label">Eingänge (nicht gelöscht)</span>
-            </div>
-            <div class="stat-tile card">
-              <span class="stat-value" id="stat-eingang-haendler">–</span>
-              <span class="stat-label">der Eingänge mit erkanntem Absender</span>
+              <span class="stat-label">Eingänge gesamt</span>
             </div>
             <div class="stat-tile card">
               <span class="stat-value" id="stat-eingang-pro-nutzer">–</span>
               <span class="stat-label">Eingänge pro Nutzer mit Eingängen</span>
             </div>
+            <div class="stat-tile card">
+              <span class="stat-value" id="stat-eingang-haendler">–</span>
+              <span class="stat-label">der Eingänge mit erkanntem Absender</span>
+            </div>
           </div>
+
+          <p class="subsection-sub">Zuordnung: „zugeordnet“ = hat einen Split reduziert (Überweisung erkannt), „ignoriert“ = Vorschlag abgelehnt, „offen“ = nichts passiert.</p>
 
           <div class="chart-grid">
             <figure class="chart-card card">
@@ -1875,14 +1879,13 @@
       </div>
     </section>
 
-    <section class="dashboard-section card collapsed" data-section="chathealth" id="chathealth">
-      <div class="section-header" role="button" tabindex="0" aria-expanded="false" data-toggle-section>
+    <section class="dashboard-section card" data-section="chathealth" id="chathealth">
+      <div class="section-header">
         <span class="section-marker badge">07</span>
         <div>
           <h2 class="section-title">Chat Health</h2>
           <p class="section-sub">Struktur der Chats/Freundschaften pro Nutzer, plus gesendete Nachrichten pro Tag seit Registrierung</p>
         </div>
-        <span class="chevron" aria-hidden="true">▾</span>
       </div>
 
       <div class="section-body">
@@ -1923,7 +1926,8 @@
           <div class="filter">
             <span class="filter-label">Kategorie</span>
             <div class="segmented btn-group" id="f4-kategorie" role="group">
-              <button type="button" data-value="text" class="btn btn-sm active">Text</button>
+              <button type="button" data-value="alles" class="btn btn-sm active">Alles</button>
+              <button type="button" data-value="text" class="btn btn-sm">Text</button>
               <button type="button" data-value="forderung" class="btn btn-sm">Forderungen</button>
               <button type="button" data-value="zahlung" class="btn btn-sm">Zahlungen</button>
               <button type="button" data-value="erinnerung" class="btn btn-sm">Erinnerungen</button>
@@ -1948,7 +1952,7 @@
 
       </div>
 
-      <div class="dashboard-sheet" data-dashboard-sheet="finapi" id="finapi" role="tabpanel" aria-labelledby="tab-finapi" hidden>
+      <div class="dashboard-sheet" data-dashboard-sheet="finapi" id="finapi" aria-labelledby="tab-finapi" hidden>
         <section class="dashboard-section card" data-section="kosten" id="kosten">
           <div class="section-header" role="button" tabindex="0" aria-expanded="true" data-toggle-section>
             <span class="section-marker badge">KOSTEN</span>
@@ -2138,7 +2142,7 @@
     </section>
       </div>
 
-      <div class="dashboard-sheet" data-dashboard-sheet="bonus" id="bonus" role="tabpanel" aria-labelledby="tab-bonus" hidden>
+      <div class="dashboard-sheet" data-dashboard-sheet="bonus" id="bonus" aria-labelledby="tab-bonus" hidden>
         <!-- Bonus Programm (dashboard/sql/bonusgruppen.sql): Ein Nutzer holt
              2–4 Leute ohne App in eine Bonusgruppe; schaffen alle Konto, Uni
              und Bank in 7 Tagen, bekommt jeder den Bonus. -->
@@ -2333,14 +2337,14 @@
         </section>
       </div>
 
-      <div class="dashboard-sheet" data-dashboard-sheet="support" id="support" role="tabpanel" aria-labelledby="tab-support" hidden>
+      <div class="dashboard-sheet" data-dashboard-sheet="support" id="support" aria-labelledby="tab-support" hidden>
         <div id="support-data-status" class="alert alert-info status-line support-status">Lade Daten…</div>
 
         <section class="dashboard-section card collapsed" data-section="support-problem">
           <div class="section-header" role="button" tabindex="0" aria-expanded="false" data-toggle-section>
             <span class="section-marker badge">PRO</span>
             <div>
-              <h2 class="section-title">Problem</h2>
+              <h2 class="section-title">Problem<span class="seiten-zaehler" id="support-offen-problem" hidden></span></h2>
               <p class="section-sub">Fehlerberichte aus <code>report</code> mit Account &amp; E-Mail</p>
             </div>
             <span class="chevron" aria-hidden="true">▾</span>
@@ -2355,7 +2359,7 @@
           <div class="section-header" role="button" tabindex="0" aria-expanded="false" data-toggle-section>
             <span class="section-marker badge">HIL</span>
             <div>
-              <h2 class="section-title">Hilfe</h2>
+              <h2 class="section-title">Hilfe<span class="seiten-zaehler" id="support-offen-hilfe" hidden></span></h2>
               <p class="section-sub">Hilfsanfragen aus <code>report</code> mit Account &amp; E-Mail</p>
             </div>
             <span class="chevron" aria-hidden="true">▾</span>
@@ -2370,7 +2374,7 @@
           <div class="section-header" role="button" tabindex="0" aria-expanded="false" data-toggle-section>
             <span class="section-marker badge">FDB</span>
             <div>
-              <h2 class="section-title">Feedback</h2>
+              <h2 class="section-title">Feedback<span class="seiten-zaehler" id="support-offen-feedback" hidden></span></h2>
               <p class="section-sub">Feedback aus <code>report</code> mit Account &amp; E-Mail</p>
             </div>
             <span class="chevron" aria-hidden="true">▾</span>
@@ -2385,7 +2389,7 @@
           <div class="section-header" role="button" tabindex="0" aria-expanded="false" data-toggle-section>
             <span class="section-marker badge">MEL</span>
             <div>
-              <h2 class="section-title">Meldungen</h2>
+              <h2 class="section-title">Meldungen<span class="seiten-zaehler" id="support-offen-meldungen" hidden></span></h2>
               <p class="section-sub"><code>audit_log</code>, aktion = <code>meldung</code> (Person über account.person_id aufgelöst)</p>
             </div>
             <span class="chevron" aria-hidden="true">▾</span>
@@ -2397,7 +2401,7 @@
         </section>
       </div>
 
-      <div class="dashboard-sheet" data-dashboard-sheet="einstellungen" id="einstellungen" role="tabpanel" aria-labelledby="tab-einstellungen" hidden>
+      <div class="dashboard-sheet" data-dashboard-sheet="einstellungen" id="einstellungen" aria-labelledby="tab-einstellungen" hidden>
         <section class="dashboard-section card" data-section="einstellungen">
           <div class="section-header" role="button" tabindex="0" aria-expanded="true" data-toggle-section>
             <span class="section-marker badge">SET</span>
