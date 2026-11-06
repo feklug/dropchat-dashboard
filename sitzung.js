@@ -2,11 +2,11 @@
 //
 // 1. Prüft beim Öffnen: angemeldet und Admin (dashboard_ich)? Sonst zurück
 //    zum Login (index.html).
-// 2. dashboardFetch(url, optionen): ersetzt die Endpunkte des alten lokalen
-//    Servers (dashboard/server.mjs) durch die Datenbankfunktionen aus
-//    dashboard/sql/dashboard_lesen.sql und dashboard_schreiben.sql. Gibt ein Response-ähnliches Objekt
-//    zurück ({ ok, status, json() }) – so bleibt dashboard.js fast wie
-//    retention.html.
+// 2. dashboardFetch(url, optionen): leitet die Adressen, die dashboard.js
+//    aufruft ('/data.json', '/bonus-einstellungen' …), auf die
+//    Datenbankfunktionen aus dashboard/sql/dashboard_lesen.sql und
+//    dashboard_schreiben.sql um. Gibt ein Response-ähnliches Objekt zurück
+//    ({ ok, status, json() }).
 //
 // Geprüft wird in der Datenbank. Was hier passiert, ist nur Komfort.
 (function () {
@@ -42,18 +42,6 @@
     if (wer) wer.textContent = sitzung.user.email ?? '';
   }).catch(() => {});
 
-  // Handy: angetippten Reiter in der wischbaren Leiste ganz sichtbar machen.
-  // Nur die Leiste verschieben, nicht die Seite (deshalb kein scrollIntoView).
-  document.querySelectorAll('[data-dashboard-tab]').forEach((reiter) => {
-    reiter.addEventListener('click', () => {
-      const leiste = reiter.parentElement;
-      const rahmen = leiste.getBoundingClientRect();
-      const r = reiter.getBoundingClientRect();
-      if (r.left < rahmen.left) leiste.scrollLeft -= rahmen.left - r.left + 8;
-      else if (r.right > rahmen.right) leiste.scrollLeft += r.right - rahmen.right + 8;
-    });
-  });
-
   document.getElementById('abmelden')?.addEventListener('click', async () => {
     const { error } = await db.auth.signOut();
     if (error) console.error('[Dashboard] Abmelden fehlgeschlagen:', error);
@@ -81,10 +69,10 @@
     }
   }
 
-  // Wie TABELLEN in dashboard/server.mjs.
+  // Die Datenquellen von dashboard_tabelle (dashboard_lesen.sql).
   const QUELLEN = [
     'screen_besuch', 'friendship', 'account', 'bank_connection', 'chat_member', 'university', 'chat',
-    'message', 'saldo_event', 'expense', 'onboarding_event', 'notification_settings', 'report',
+    'message', 'expense', 'onboarding_event', 'notification_settings', 'report',
     'audit_log', 'dashboard_bearbeitet', 'app_config', 'einladung_gesendet', 'person_status',
     'schatten_mitglied', 'einladung_empfaenger', 'kontakte_bei_registrierung', 'bonus_mitglied',
     'promoter_geworben', 'bank_flow_event', 'drops', 'eingang', 'category',
@@ -115,7 +103,7 @@
     return { screen_besuch, account, geladen_am: new Date().toISOString() };
   }
 
-  // Wie ladeKosten in dashboard/server.mjs – Preise aus der Datenbank.
+  // Nutzer je Monat und Preise aus der Datenbank, Rechnung hier.
   async function ladeKosten() {
     const { preise, monate } = await rpc('dashboard_kosten');
     const K = window.FinapiKosten;
@@ -133,7 +121,7 @@
   }
 
   // Probelauf des bank-waechter für den nächsten Monatsletzten (Wiener Zeit),
-  // wie simuliereTrennung in dashboard/server.mjs. Die Function lässt
+  // wie der Cron-Lauf, nur ohne Wirkung. Die Function lässt
   // Dashboard-Admins nur den Probelauf zu – der trennt und pusht nichts.
   async function simuliereTrennung() {
     const heute = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Vienna' }).format(new Date());
@@ -160,6 +148,7 @@
     'GET /trennung.json': () => rpc('dashboard_trennung'),
     'GET /bonus.json': () => rpc('dashboard_bonus'),
     'GET /promoter.json': () => rpc('dashboard_promoter'),
+    'GET /nutzerliste.json': () => rpc('dashboard_nutzerliste'),
     'POST /trennung-vorschau': (body) => rpc('dashboard_trennung_vorschau', { p_tage: body.inaktiv_tage }),
     // Es gibt keinen Zwischenspeicher mehr: Neu laden = Seite neu laden.
     'POST /reload-data': async () => ({ ok: true }),
