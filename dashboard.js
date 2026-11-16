@@ -514,7 +514,6 @@ async function ladeDaten() {
 
   // Quelle je registrierter Person – die stärkste zählt, in dieser Reihenfolge:
   //   bonus           als Mitglied (nicht Ersteller) in einer Bonusgruppe
-  //   promoter        Promoter-Code eingelöst
   //   schattengruppe  vor der Registrierung in einer Gruppe (keine Bonusgruppe)
   //   schattenchat    vor der Registrierung in einem Einzelchat
   //   sonstiges       nichts davon (App Store, Mundpropaganda, Link)
@@ -522,7 +521,6 @@ async function ladeDaten() {
   // ohne_app_hinzugefuegt) oder hinzugefügt, bevor das Konto entstand.
   const bonusChats = new Set((alles.bonus_mitglied || []).map((b) => b.chat_id));
   const bonusGeworben = new Set((alles.bonus_mitglied || []).filter((b) => b.rolle === 'mitglied').map((b) => b.person_id));
-  const promoterGeworben = new Set((alles.promoter_geworben || []).map((p) => p.geworbene_person_id));
   const registriertAm = new Map(accounts.map((a) => [a.person_id, a.created_at]));
   const vorRegistrierung = { gruppe: new Set(), einzel: new Set() };
   for (const m of schattenMitglieder) {
@@ -535,7 +533,6 @@ async function ladeDaten() {
   }
   const quelleProPerson = new Map(accounts.map((a) => [a.person_id,
     bonusGeworben.has(a.person_id) ? 'bonus'
-      : promoterGeworben.has(a.person_id) ? 'promoter'
       : vorRegistrierung.gruppe.has(a.person_id) ? 'schattengruppe'
       : vorRegistrierung.einzel.has(a.person_id) ? 'schattenchat'
       : 'sonstiges']));
@@ -1867,7 +1864,7 @@ function zeichneBonusSignale() {
   setze('sig-ohne-bonus', pct(ohneBonus(jetzt4), jetzt4.length));
   setze('sig-ohne-bonus-label', `kamen nicht über eine Bonusgruppe (letzte 2 Tage, ${ohneBonus(jetzt4)} von ${jetzt4.length})`);
   setze('sig-ohne-bonus-vorher', pct(ohneBonus(vorher4), vorher4.length));
-  const QUELLEN = [['bonus', 'Bonusgruppe'], ['promoter', 'Promoter'], ['schattengruppe', 'Schattengruppe'], ['schattenchat', 'Schattenchat'], ['sonstiges', 'Sonstiges']];
+  const QUELLEN = [['bonus', 'Bonusgruppe'], ['schattengruppe', 'Schattengruppe'], ['schattenchat', 'Schattenchat'], ['sonstiges', 'Sonstiges']];
   const anzahl = (liste, q) => liste.filter((a) => (quelleProPerson.get(a.person_id) || 'sonstiges') === q).length;
   document.getElementById('sig-quellen').innerHTML = `<thead><tr><th>Quelle</th><th>letzte 2 Tage</th><th>2 Tage davor</th></tr></thead><tbody>${
     QUELLEN.map(([q, label]) => `<tr><td>${label}</td><td>${anzahl(jetzt4, q)} (${pct(anzahl(jetzt4, q), jetzt4.length)})</td><td>${anzahl(vorher4, q)} (${pct(anzahl(vorher4, q), vorher4.length)})</td></tr>`).join('')
@@ -2160,7 +2157,7 @@ function initialisiereWartungsmodusSchalter(appConfig) {
 
 
 // ---------------------------------------------------------------
-// Gemeinsame Helfer (Inaktivitäts-Trennung, Promoter, Bonus)
+// Gemeinsame Helfer (Inaktivitäts-Trennung, Bonus)
 // ---------------------------------------------------------------
 function htmlEscape(text) {
   return String(text ?? '').replace(/[&<>"']/g, (z) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[z]));
@@ -2447,286 +2444,14 @@ document.getElementById('trennung-speichern').addEventListener('click', () => { 
 document.getElementById('trennung-probelauf').addEventListener('click', () => { void trennungProbelauf(); });
 
 // ---------------------------------------------------------------
-// 04 Externes Marketing → Promoter Programm
-// Daten vom Server (/promoter.json, promoter_uebersicht – siehe
-// dashboard/sql/promoter_programm.sql). Beträge sind überall Cent.
+// Gemeinsamer Helfer für Schreib-Anfragen (Bonus, Trennung …).
 // ---------------------------------------------------------------
-let proStand = null; // { promoter, preise, werbungen }
-const PRO_PREIS_FELDER = {
-  preis_registriert: 'pro-preis-registriert',
-  preis_uni: 'pro-preis-uni',
-  preis_bank: 'pro-preis-bank',
-  preis_uni_bank: 'pro-preis-uni-bank',
-};
-
-function proJaNein(wert) {
-  return wert ? '<span class="badge bg-green-lt">ja</span>' : '<span class="badge bg-secondary-lt">nein</span>';
-}
-function proMeilenstein(erreicht, erreichtAm) {
-  return `${proJaNein(erreicht)}${erreichtAm ? ` <span class="settings-note">seit ${htmlEscape(datumWien(erreichtAm).replace(/, \d\d:\d\d$/, ''))}</span>` : ''}`;
-}
-function proSumme(werbungen) {
-  return werbungen.reduce((summe, w) => summe + (w.preis || 0), 0);
-}
-
 async function proAnfrage(url, body) {
   const res = await dashboardFetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body ?? {}) });
   const antwort = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(antwort.error || res.status);
   return antwort;
 }
-
-function proZeigeZahlen() {
-  const { promoter, werbungen } = proStand;
-  // Gelöschte zählen mit: Was jemand einmal erreicht hat, bleibt (promoter_uebersicht).
-  document.getElementById('pro-zahl-promoter').textContent = promoter.filter((p) => p.aktiv).length;
-  document.getElementById('pro-zahl-promoter-label').textContent = `aktive Promoter (von ${promoter.length})`;
-  document.getElementById('pro-zahl-geworben').textContent = werbungen.length;
-  document.getElementById('pro-zahl-uni').textContent = werbungen.filter((w) => w.uni_verbunden).length;
-  document.getElementById('pro-zahl-bank').textContent = werbungen.filter((w) => w.bank_verbunden).length;
-  document.getElementById('pro-zahl-beides').textContent = werbungen.filter((w) => w.uni_verbunden && w.bank_verbunden).length;
-  const erwirtschaftet = proSumme(werbungen);
-  const ausbezahlt = promoter.reduce((summe, p) => summe + (p.ausbezahlt_cent || 0), 0);
-  document.getElementById('pro-zahl-summe').textContent = euroAusCent(erwirtschaftet);
-  document.getElementById('pro-zahl-ausbezahlt').textContent = euroAusCent(ausbezahlt);
-  document.getElementById('pro-zahl-offen').textContent = euroAusCent(erwirtschaftet - ausbezahlt);
-}
-
-function proIbanText(iban) {
-  return iban ? iban.replace(/(.{4})/g, '$1 ').trim() : '';
-}
-
-function proFuellePreise() {
-  const preise = proStand.preise;
-  for (const [feld, id] of Object.entries(PRO_PREIS_FELDER)) document.getElementById(id).value = (preise[feld] / 100).toFixed(2);
-  document.getElementById('pro-preise-hinweis').textContent = `Zuletzt geändert: ${datumWien(preise.aktualisiert_am)}`;
-}
-
-function proPersonenTabelle(werbungen) {
-  if (werbungen.length === 0) return '<p class="alg-fenster-leer">Über diesen Code hat sich noch niemand registriert.</p>';
-  const zeilen = werbungen.map((w) => `<tr>
-      <td>${htmlEscape(w.anzeigename || '–')}${w.username ? ` <span class="settings-note">@${htmlEscape(w.username)}</span>` : ''}${w.geloescht ? ' <span class="badge bg-red-lt">gelöscht</span>' : ''}</td>
-      <td>${htmlEscape(w.telefon || '–')}</td>
-      <td>${proMeilenstein(w.bank_verbunden, w.bank_erreicht_am)}</td>
-      <td>${proMeilenstein(w.uni_verbunden, w.uni_erreicht_am)}${w.uni_name ? ` <span class="settings-note">${htmlEscape(w.uni_name)}</span>` : ''}</td>
-      <td>${htmlEscape(datumWien(w.eingeloest_am))}</td>
-      <td><strong>${euroAusCent(w.preis || 0)}</strong></td>
-    </tr>`).join('');
-  return `<div class="pro-tabelle-scroll"><table class="pro-tabelle">
-    <thead><tr><th>Name</th><th>Telefon</th><th>Bank (jemals)</th><th>Uni (jemals)</th><th>registriert</th><th>Preis</th></tr></thead>
-    <tbody>${zeilen}</tbody>
-  </table></div>`;
-}
-
-function proZeigeListe() {
-  const ziel = document.getElementById('pro-liste');
-  const { promoter, werbungen } = proStand;
-  if (promoter.length === 0) {
-    ziel.innerHTML = '<p class="alg-fenster-leer">Noch kein Promoter angelegt.</p>';
-    return;
-  }
-  // Aufgeklappte Details nach dem Neuzeichnen offen lassen.
-  const offen = new Set([...ziel.querySelectorAll('tr[data-pro-details-von]:not([hidden])')].map((z) => z.dataset.proDetailsVon));
-  const zeilen = promoter.map((p) => {
-    const eigene = werbungen.filter((w) => w.promoter_id === p.promoter_id);
-    const amLimit = eigene.length >= p.max_geworbene;
-    const erwirtschaftet = proSumme(eigene);
-    const ausbezahlt = p.ausbezahlt_cent || 0;
-    const rest = erwirtschaftet - ausbezahlt;
-    return `<tr data-promoter-id="${htmlEscape(p.promoter_id)}">
-        <td><strong>${htmlEscape(p.name)}</strong></td>
-        <td><code>${htmlEscape(p.code)}</code></td>
-        <td>
-          <label class="form-check form-switch" style="margin:0;">
-            <input class="form-check-input" type="checkbox" data-pro-aktiv ${p.aktiv ? 'checked' : ''} />
-            <span class="form-check-label">${p.aktiv ? 'aktiv' : 'pausiert'}</span>
-          </label>
-        </td>
-        <td>${eigene.length} / ${htmlEscape(p.max_geworbene)}${amLimit ? ' <span class="badge bg-orange-lt">Limit erreicht</span>' : ''}</td>
-        <td>${p.iban ? `<span class="pro-iban">${htmlEscape(proIbanText(p.iban))}</span>` : '<span class="badge bg-red-lt">IBAN fehlt</span>'}</td>
-        <td>${euroAusCent(erwirtschaftet)}</td>
-        <td>${euroAusCent(ausbezahlt)}</td>
-        <td><strong class="${rest < 0 ? 'pro-negativ' : ''}">${euroAusCent(rest)}</strong></td>
-        <td><button class="btn btn-outline-secondary btn-sm" type="button" data-pro-details>Details · ${eigene.length} Personen</button></td>
-      </tr>
-      <tr class="pro-personen-zeile" data-pro-details-von="${htmlEscape(p.promoter_id)}" ${offen.has(p.promoter_id) ? '' : 'hidden'}>
-        <td colspan="9">
-          <div class="pro-bearbeiten">
-            <div class="alg-feld">
-              <span class="alg-label">Maximales Limit</span>
-              <span class="alg-hint">Höchstzahl geworbener Personen</span>
-              <span class="pro-feld-zeile">
-                <input type="number" class="form-control form-control-sm" data-pro-limit min="1" step="1" value="${htmlEscape(p.max_geworbene)}" />
-                <span class="alg-einheit">Personen</span>
-                <button class="btn btn-outline-primary btn-sm" type="button" data-pro-speichern="limit">Speichern</button>
-              </span>
-            </div>
-            <div class="alg-feld">
-              <span class="alg-label">IBAN</span>
-              <span class="alg-hint">Wohin ausbezahlt wird</span>
-              <span class="pro-feld-zeile">
-                <input type="text" class="form-control form-control-sm pro-iban" data-pro-iban maxlength="42" autocomplete="off" spellcheck="false" value="${htmlEscape(proIbanText(p.iban))}" />
-                <button class="btn btn-outline-primary btn-sm" type="button" data-pro-speichern="iban">Speichern</button>
-              </span>
-            </div>
-            <div class="alg-feld">
-              <span class="alg-label">Schon ausbezahlt</span>
-              <span class="alg-hint">Gesamtsumme aller Überweisungen an diesen Promoter${p.ausbezahlt_geaendert_am ? ` · zuletzt geändert ${htmlEscape(datumWien(p.ausbezahlt_geaendert_am))}` : ''}</span>
-              <span class="pro-feld-zeile">
-                <input type="number" class="form-control form-control-sm" data-pro-ausbezahlt min="0" step="0.01" value="${(ausbezahlt / 100).toFixed(2)}" />
-                <span class="alg-einheit">€</span>
-                <button class="btn btn-outline-primary btn-sm" type="button" data-pro-speichern="ausbezahlt">Speichern</button>
-              </span>
-            </div>
-          </div>
-          ${proPersonenTabelle(eigene)}
-        </td>
-      </tr>`;
-  }).join('');
-  ziel.innerHTML = `<div class="pro-tabelle-scroll"><table class="pro-tabelle">
-      <thead><tr><th>Name</th><th>Code</th><th>Status</th><th>geworben / Limit</th><th>IBAN</th><th>erwirtschaftet</th><th>ausbezahlt</th><th>offen</th><th></th></tr></thead>
-      <tbody>${zeilen}</tbody>
-    </table></div>`;
-}
-
-function proZeige(antwort) {
-  proStand = antwort;
-  const programmAn = antwort.preise.programm_aktiv !== false;
-  document.getElementById('pro-programm-aktiv').checked = programmAn;
-  document.getElementById('pro-programm-text').textContent = programmAn ? 'an' : 'aus';
-  const status = document.getElementById('pro-status');
-  status.classList.remove('error');
-  status.textContent = `Stand ${datumWien(new Date().toISOString())}`;
-  proZeigeZahlen();
-  proFuellePreise();
-  proZeigeListe();
-}
-
-async function proLaden() {
-  const status = document.getElementById('pro-status');
-  try {
-    const res = await dashboardFetch('/promoter.json', { cache: 'no-store' });
-    const antwort = await res.json();
-    if (!res.ok) throw new Error(antwort.error || res.status);
-    proZeige(antwort);
-  } catch (err) {
-    console.error('Promoter Programm nicht geladen:', err);
-    status.classList.add('error');
-    status.textContent = `Promoter Programm nicht geladen: ${err.message}`;
-  }
-}
-
-function proLeseCent(eingabe) {
-  const feld = eingabe.value.trim().replace(',', '.');
-  const wert = feld === '' ? NaN : Number(feld);
-  if (!Number.isFinite(wert) || wert < 0) throw new Error('Beträge müssen Zahlen ab 0 € sein');
-  return Math.round(wert * 100);
-}
-
-document.getElementById('pro-neu-laden').addEventListener('click', () => { void proLaden(); });
-
-document.getElementById('pro-programm-aktiv').addEventListener('change', async (e) => {
-  const schalter = e.currentTarget;
-  const hinweis = document.getElementById('pro-programm-hinweis');
-  schalter.disabled = true;
-  try {
-    proZeige(await proAnfrage('/promoter-programm', { aktiv: schalter.checked }));
-    hinweis.textContent = schalter.checked
-      ? 'Eingeschaltet ✓ Das Feld „Einladungscode“ erscheint wieder bei der Registrierung.'
-      : 'Ausgeschaltet ✓ Kein Feld „Einladungscode“ mehr, Codes gelten nicht.';
-  } catch (err) {
-    console.error('Promoter-Programm nicht umgeschaltet:', err);
-    schalter.checked = !schalter.checked;
-    hinweis.textContent = `Fehler: ${err.message}`;
-  } finally {
-    schalter.disabled = false;
-  }
-});
-
-document.getElementById('pro-preise-speichern').addEventListener('click', async (e) => {
-  const knopf = e.currentTarget;
-  const hinweis = document.getElementById('pro-preise-hinweis');
-  knopf.disabled = true;
-  try {
-    const preise = {};
-    for (const [feld, id] of Object.entries(PRO_PREIS_FELDER)) preise[feld] = proLeseCent(document.getElementById(id));
-    proZeige(await proAnfrage('/promoter-preise', preise));
-    hinweis.textContent = 'Gespeichert ✓ Gilt für neue Einlösungen.';
-  } catch (err) {
-    console.error('Promoter-Preise nicht gespeichert:', err);
-    hinweis.textContent = `Fehler: ${err.message}`;
-  } finally {
-    knopf.disabled = false;
-  }
-});
-
-document.getElementById('pro-neu-anlegen').addEventListener('click', async (e) => {
-  const knopf = e.currentTarget;
-  const hinweis = document.getElementById('pro-neu-hinweis');
-  const name = document.getElementById('pro-neu-name');
-  const code = document.getElementById('pro-neu-code');
-  const limit = document.getElementById('pro-neu-limit');
-  const iban = document.getElementById('pro-neu-iban');
-  knopf.disabled = true;
-  try {
-    proZeige(await proAnfrage('/promoter-anlegen', { name: name.value, code: code.value, max_geworbene: Number(limit.value), iban: iban.value }));
-    hinweis.textContent = `Promoter ${code.value.trim().toUpperCase()} angelegt ✓`;
-    name.value = '';
-    code.value = '';
-    iban.value = '';
-  } catch (err) {
-    console.error('Promoter nicht angelegt:', err);
-    hinweis.textContent = `Fehler: ${err.message}`;
-  } finally {
-    knopf.disabled = false;
-  }
-});
-
-// Die Liste wird bei jedem Laden neu gebaut -> Ereignisse am Container.
-const proListe = document.getElementById('pro-liste');
-proListe.addEventListener('click', async (e) => {
-  const knopf = e.target.closest('[data-pro-details], [data-pro-speichern]');
-  if (!knopf) return;
-  const zeile = knopf.closest('tr');
-  const id = zeile.dataset.promoterId || zeile.dataset.proDetailsVon;
-  if (knopf.matches('[data-pro-details]')) {
-    const details = proListe.querySelector(`tr[data-pro-details-von="${CSS.escape(id)}"]`);
-    if (details) details.hidden = !details.hidden;
-    return;
-  }
-  const details = knopf.closest('tr[data-pro-details-von]');
-  const hinweis = document.getElementById('pro-liste-hinweis');
-  const feld = knopf.dataset.proSpeichern;
-  knopf.disabled = true;
-  try {
-    const aenderung = { promoter_id: id };
-    if (feld === 'limit') aenderung.max_geworbene = Number(details.querySelector('[data-pro-limit]').value);
-    if (feld === 'iban') aenderung.iban = details.querySelector('[data-pro-iban]').value;
-    if (feld === 'ausbezahlt') aenderung.ausbezahlt_cent = proLeseCent(details.querySelector('[data-pro-ausbezahlt]'));
-    proZeige(await proAnfrage('/promoter-aendern', aenderung));
-    hinweis.textContent = { limit: 'Limit gespeichert ✓', iban: 'IBAN gespeichert ✓', ausbezahlt: 'Ausbezahlt gespeichert ✓' }[feld];
-  } catch (err) {
-    console.error('Promoter nicht geändert:', err);
-    hinweis.textContent = `Fehler: ${err.message}`;
-    knopf.disabled = false;
-  }
-});
-proListe.addEventListener('change', async (e) => {
-  const schalter = e.target.closest('[data-pro-aktiv]');
-  if (!schalter) return;
-  const promoterId = schalter.closest('tr[data-promoter-id]').dataset.promoterId;
-  const hinweis = document.getElementById('pro-liste-hinweis');
-  schalter.disabled = true;
-  try {
-    proZeige(await proAnfrage('/promoter-aendern', { promoter_id: promoterId, aktiv: schalter.checked }));
-    hinweis.textContent = schalter.checked ? 'Promoter aktiviert ✓' : 'Promoter pausiert ✓ Der Code gilt in der App nicht mehr.';
-  } catch (err) {
-    console.error('Promoter-Status nicht geändert:', err);
-    schalter.checked = !schalter.checked;
-    schalter.disabled = false;
-    hinweis.textContent = `Fehler: ${err.message}`;
-  }
-});
 
 // ---------------------------------------------------------------
 // 04 Externes Marketing → Bonus Programm
@@ -2793,8 +2518,8 @@ function bonZeigeZahlen() {
   zeige('bon-zahl-bank', alle.filter((p) => p.bank).length);
 
   const summe = (liste) => liste.reduce((s, z) => s + (z.betrag_cent || 0), 0);
-  document.getElementById('bon-zahl-ausbezahlt').textContent = euroAusCent(summe(auszahlungen.filter((z) => z.ausbezahlt_am)));
-  document.getElementById('bon-zahl-offen').textContent = euroAusCent(summe(auszahlungen.filter((z) => !z.ausbezahlt_am)));
+    document.getElementById('bon-zahl-ausbezahlt').textContent = euroAusCent(summe(auszahlungen.filter((z) => z.ausbezahlt_am)));
+    document.getElementById('bon-zahl-offen').textContent = euroAusCent(summe(auszahlungen.filter((z) => !z.ausbezahlt_am)));
   zeichneBonusCharts();
 }
 
@@ -2896,7 +2621,7 @@ function bonZeigeAuszahlungen() {
       <td>${htmlEscape(z.gruppe || '–')}</td>
       <td><strong>${euroAusCent(z.betrag_cent)}</strong></td>
       <td>${z.iban ? `<span class="pro-iban">${htmlEscape(bonIban(z.iban))}</span>` : '<span class="badge bg-red-lt">IBAN fehlt</span>'}</td>
-      <td>${z.ausbezahlt_am ? `<span class="badge bg-green-lt">ausbezahlt</span> <span class="settings-note">${htmlEscape(datumWien(z.ausbezahlt_am))}</span>` : '<span class="badge bg-orange-lt">offen</span>'}</td>
+      <td>${z.ausbezahlt_am ? `<span class="badge bg-green-lt">ausbezahlt</span> <span class="settings-note">${htmlEscape(datumWien(z.ausbezahlt_am))}</span>` : `<span class="badge bg-orange-lt">offen</span> <span class="settings-note">seit ${htmlEscape(datumWien(z.uebernommen_am))}</span>`}</td>
       <td><button type="button" class="btn btn-sm ${z.ausbezahlt_am ? 'btn-outline-secondary' : 'btn-primary'}" data-bon-ausbezahlt="${z.ausbezahlt_am ? 'nein' : 'ja'}">${z.ausbezahlt_am ? 'Zurücknehmen' : 'Als ausbezahlt markieren'}</button></td>
     </tr>`).join('')}</tbody>
   </table></div>`;
@@ -3029,20 +2754,19 @@ document.getElementById('bon-gruppen').addEventListener('click', (e) => {
   const details = document.querySelector(`#bon-gruppen tr[data-bon-details-von="${CSS.escape(id)}"]`);
   if (details) details.hidden = !details.hidden;
 });
+// Auszahlungen: je Bonusgruppe überweist DropChat den übernommenen Betrag an den Ersteller der Bonusforderung.
 document.getElementById('bon-auszahlungen').addEventListener('click', async (e) => {
   const knopf = e.target.closest('[data-bon-ausbezahlt]');
   if (!knopf) return;
   const zeile = knopf.closest('tr');
+  const hinweis = document.getElementById('bon-hinweis');
   knopf.disabled = true;
   try {
-    bonZeige(await proAnfrage('/bonus-ausbezahlt', {
-      chat_id: zeile.dataset.bonChat,
-      person_id: zeile.dataset.bonPerson,
-      ausbezahlt: knopf.dataset.bonAusbezahlt === 'ja',
-    }));
+    bonZeige(await proAnfrage('/bonus-ausbezahlt', { chat_id: zeile.dataset.bonChat, ausbezahlt: knopf.dataset.bonAusbezahlt === 'ja' }));
+    hinweis.textContent = knopf.dataset.bonAusbezahlt === 'ja' ? 'Als ausbezahlt markiert ✓' : 'Zurückgenommen ✓';
   } catch (err) {
-    console.error('Auszahlung nicht geändert:', err);
-    document.getElementById('bon-liste-hinweis').textContent = `Fehler: ${err.message}`;
+    console.error('Bonus-Auszahlung nicht gespeichert:', err);
+    hinweis.textContent = `Fehler: ${err.message}`;
     knopf.disabled = false;
   }
 });
@@ -3120,7 +2844,6 @@ async function main() {
   void initialisiereNutzerListe();
   void initialisiereTrennung();
   void initialisiereKosten();
-  void proLaden();
   void bonLaden();
   try {
     await ladeDaten();
