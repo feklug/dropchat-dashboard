@@ -15,7 +15,7 @@
 <meta name="robots" content="noindex, nofollow" />
 <meta name="referrer" content="no-referrer" />
 <!-- Nur Supabase und feste CDN-Dateien. Keine fremden Skripte. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src https://cdn.jsdelivr.net; img-src 'self' data:; manifest-src 'self'; connect-src https://zkfvswurdsjqtsvqnjge.supabase.co wss://zkfvswurdsjqtsvqnjge.supabase.co; base-uri 'none'; form-action 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src https://cdn.jsdelivr.net; img-src 'self' data:; manifest-src 'self'; connect-src https://jxibletvuuodxvbyjlga.supabase.co wss://jxibletvuuodxvbyjlga.supabase.co; base-uri 'none'; form-action 'none'" />
 <title>DropChat Dashboard</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/css/tabler.min.css"
       integrity="sha384-kz+I4+mczbNiZfLAJMxOlJaZmnbRYhARHNkR2k6tal4gz7OL33/0puDD3SvkiNX9" crossorigin="anonymous" />
@@ -629,7 +629,7 @@
   .trennung-ergebnis table { width: 100%; border-collapse: collapse; margin-top: 8px; }
   .trennung-ergebnis th, .trennung-ergebnis td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
 
-  /* ── Formular-Bausteine (Inaktivitäts-Trennung, Bonus) ──── */
+  /* ── Formular-Bausteine (Inaktivitäts-Trennung, Bonus, Promoter) ──── */
   .alg-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -657,13 +657,13 @@
   .alg-einheit { font-size: 12px; color: var(--text-secondary); white-space: nowrap; }
   .alg-fenster-leer { font-size: 13px; color: var(--text-muted); margin: 0; }
 
-  /* ── Bonus Programm ──────────────────────── */
+  /* ── 04 Externes Marketing → Bonus Programm ──────────────────────── */
   .bon-gruppe-titel { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); margin: 14px 0 8px; }
   .bon-gruppe-titel:first-of-type { margin-top: 4px; }
   .bon-unis { display: flex; flex-direction: column; gap: 2px; margin-top: 6px; max-height: 140px; overflow-y: auto; }
   .bon-unis .form-check { margin: 0; font-size: 13px; }
 
-  /* ── Tabellen (Bonus) ─────────────────────────────────────────────── */
+  /* ── 04 Externes Marketing → Promoter Programm ───────────────────── */
   .pro-tabelle-scroll { overflow-x: auto; }
   .pro-tabelle { width: 100%; border-collapse: collapse; font-size: 13px; }
   .pro-tabelle th, .pro-tabelle td { text-align: left; padding: 8px; border-bottom: 1px solid var(--gridline); vertical-align: middle; font-variant-numeric: tabular-nums; }
@@ -671,7 +671,28 @@
   .pro-tabelle th { color: var(--text-muted); font-weight: 600; }
   .pro-personen-zeile > td { background: var(--surface-1); padding: 10px 12px 14px; white-space: normal; }
   .pro-personen-zeile .pro-tabelle { font-size: 12px; }
+  .pro-bearbeiten { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .pro-bearbeiten .alg-feld { background: var(--surface-2, var(--surface-1)); }
+  .pro-feld-zeile { display: flex; gap: 6px; align-items: center; margin-top: 6px; }
+  .pro-feld-zeile input[type="number"] { max-width: 110px; }
   .pro-iban { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; }
+  .pro-negativ { color: #e34948; }
+
+
+
+
+  @media (max-width: 720px) {
+    .page { padding: 18px 14px 48px; }
+    .dashboard-section { padding: 18px 16px; border-radius: 14px; }
+    .dashboard-section::before { left: 16px; }
+    .section-header { grid-template-columns: auto 1fr auto; gap: 10px; }
+    .section-title { font-size: 21px; }
+    .filter { flex: 1 1 100%; }
+    .segmented { width: 100%; }
+    .segmented button { flex: 1; padding-inline: 8px; }
+    .chart-card { padding: 15px 14px 18px; }
+    .chart-card-head { align-items: flex-start; }
+  }
 
   /* Tabler redesign layer */
   body {
@@ -1226,6 +1247,10 @@
             <span class="seiten-nummer">03</span>
             <span class="seiten-name">Internes Marketing</span>
           </button>
+          <button class="seiten-unterlink" type="button" data-dashboard-metrik="extern">
+            <span class="seiten-nummer">04</span>
+            <span class="seiten-name">Externes Marketing</span>
+          </button>
           <button class="seiten-unterlink" type="button" data-dashboard-metrik="onboarding">
             <span class="seiten-nummer">05</span>
             <span class="seiten-name">Onboarding</span>
@@ -1365,6 +1390,7 @@
             <select class="form-select select-input" id="f-quelle">
               <option value="alle">Alle</option>
               <option value="bonus">Bonusgruppe</option>
+              <option value="promoter">Promoter</option>
               <option value="schattengruppe">Schattengruppe</option>
               <option value="schattenchat">Schattenchat</option>
               <option value="sonstiges">Sonstiges</option>
@@ -1433,6 +1459,7 @@
             <select class="form-select select-input" id="f2-quelle">
               <option value="alle">Alle</option>
               <option value="bonus">Bonusgruppe</option>
+              <option value="promoter">Promoter</option>
               <option value="schattengruppe">Schattengruppe</option>
               <option value="schattenchat">Schattenchat</option>
               <option value="sonstiges">Sonstiges</option>
@@ -1584,6 +1611,142 @@
               <div class="card-body chart-canvas-wrap"><canvas id="chart-einladungen"></canvas></div>
               <div class="table-view" id="table-einladungen" hidden></div>
             </figure>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="dashboard-section card" data-section="extern" id="extern">
+      <div class="section-header">
+        <span class="section-marker badge">04</span>
+        <div>
+          <h2 class="section-title">Externes Marketing</h2>
+          <p class="section-sub">Promoter Programm</p>
+        </div>
+      </div>
+
+      <div class="section-body">
+        <!-- Promoter Programm (dashboard/sql/promoter_programm.sql): Promoter =
+             erlaubter Einladungscode. Geworbene Personen und Beträge kommen aus
+             promoter_uebersicht(), live nach aktuellem Status berechnet. -->
+        <div class="unterseite" data-unterseite="promoter">
+          <p class="unterseite-intro">Einladungscode bei der Registrierung (Schritt „Dein Profil“). Tabellen promoter, promoter_werbung, promoter_preise.</p>
+          <div id="pro-status" class="alert alert-info status-line">Lade Promoter Programm…</div>
+
+          <div class="aktionen-zeile" style="margin-top:0;margin-bottom:14px;">
+            <label class="form-check form-switch" style="margin:0;">
+              <input class="form-check-input" type="checkbox" id="pro-programm-aktiv" />
+              <span class="form-check-label"><strong>Programm</strong> <span id="pro-programm-text">–</span></span>
+            </label>
+            <span class="settings-note" id="pro-programm-hinweis" style="margin:0;">Aus: kein Feld „Einladungscode“ bei der Registrierung, Codes gelten nicht.</span>
+          </div>
+
+          <div class="stat-grid compact">
+            <div class="stat-tile card"><span class="stat-value" id="pro-zahl-promoter">–</span><span class="stat-label" id="pro-zahl-promoter-label">aktive Promoter</span></div>
+            <div class="stat-tile card"><span class="stat-value" id="pro-zahl-geworben">–</span><span class="stat-label">geworbene Personen</span></div>
+            <div class="stat-tile card"><span class="stat-value" id="pro-zahl-uni">–</span><span class="stat-label">davon jemals Uni verbunden</span></div>
+            <div class="stat-tile card"><span class="stat-value" id="pro-zahl-bank">–</span><span class="stat-label">davon jemals Bank verbunden</span></div>
+            <div class="stat-tile card"><span class="stat-value" id="pro-zahl-beides">–</span><span class="stat-label">davon beides</span></div>
+          </div>
+          <div class="stat-grid compact">
+            <div class="stat-tile card"><span class="stat-value" id="pro-zahl-summe">–</span><span class="stat-label">gesamt erwirtschaftet</span></div>
+            <div class="stat-tile card"><span class="stat-value" id="pro-zahl-ausbezahlt">–</span><span class="stat-label">ausbezahlt</span></div>
+            <div class="stat-tile card"><span class="stat-value" id="pro-zahl-offen">–</span><span class="stat-label">offen</span></div>
+          </div>
+          <div class="aktionen-zeile">
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="pro-neu-laden"><i class="ti ti-refresh me-1" aria-hidden="true"></i>Neu laden</button>
+            <span class="settings-note" style="margin:0;">Beträge nach dem, was die Person jemals erreicht hat: Trennt sie später Uni oder Bank oder löscht ihr Konto, bleibt der Betrag.</span>
+          </div>
+
+          <div class="subsection">
+            <h3 class="subsection-title">Preise</h3>
+            <p class="subsection-sub">Pro geworbener Person. Änderungen gelten nur für <strong>neue</strong> Einlösungen – bereits Geworbene behalten den Preis von damals.</p>
+            <div class="alg-grid">
+              <label class="alg-feld">
+                <span class="alg-label">Registriert</span>
+                <span class="alg-hint">Nur Telefon verifiziert</span>
+                <span class="alg-eingabe">
+                  <input type="number" class="form-control form-control-sm" id="pro-preis-registriert" min="0" max="100" step="0.01" />
+                  <span class="alg-einheit">€</span>
+                </span>
+              </label>
+              <label class="alg-feld">
+                <span class="alg-label">+ Uni verbunden</span>
+                <span class="alg-hint">Uni verifiziert, keine Bank</span>
+                <span class="alg-eingabe">
+                  <input type="number" class="form-control form-control-sm" id="pro-preis-uni" min="0" max="100" step="0.01" />
+                  <span class="alg-einheit">€</span>
+                </span>
+              </label>
+              <label class="alg-feld">
+                <span class="alg-label">+ Bank verbunden</span>
+                <span class="alg-hint">Bank verbunden, keine Uni</span>
+                <span class="alg-eingabe">
+                  <input type="number" class="form-control form-control-sm" id="pro-preis-bank" min="0" max="100" step="0.01" />
+                  <span class="alg-einheit">€</span>
+                </span>
+              </label>
+              <label class="alg-feld">
+                <span class="alg-label">+ Uni + Bank</span>
+                <span class="alg-hint">Beides erledigt</span>
+                <span class="alg-eingabe">
+                  <input type="number" class="form-control form-control-sm" id="pro-preis-uni-bank" min="0" max="100" step="0.01" />
+                  <span class="alg-einheit">€</span>
+                </span>
+              </label>
+            </div>
+            <div class="aktionen-zeile">
+              <button type="button" class="btn btn-primary btn-sm" id="pro-preise-speichern">Preise speichern</button>
+              <span class="settings-note" id="pro-preise-hinweis" style="margin:0;"></span>
+            </div>
+          </div>
+
+          <div class="subsection">
+            <h3 class="subsection-title">Promoter hinzufügen</h3>
+            <p class="subsection-sub">Der Code wird in der App bei der Registrierung eingegeben (Groß-/Kleinschreibung egal).</p>
+            <div class="alg-grid">
+              <label class="alg-feld">
+                <span class="alg-label">Name</span>
+                <span class="alg-hint">Intern, für Übersicht und Auszahlung</span>
+                <span class="alg-eingabe">
+                  <input type="text" class="form-control form-control-sm" id="pro-neu-name" maxlength="80" />
+                </span>
+              </label>
+              <label class="alg-feld">
+                <span class="alg-label">Code</span>
+                <span class="alg-hint">3–20 Buchstaben oder Ziffern, z. B. LISA5</span>
+                <span class="alg-eingabe">
+                  <input type="text" class="form-control form-control-sm" id="pro-neu-code" maxlength="20" style="text-transform:uppercase;" />
+                </span>
+              </label>
+              <label class="alg-feld">
+                <span class="alg-label">Maximales Limit</span>
+                <span class="alg-hint">Höchstzahl geworbener Personen – danach ist der Code ungültig</span>
+                <span class="alg-eingabe">
+                  <input type="number" class="form-control form-control-sm" id="pro-neu-limit" min="1" step="1" value="50" />
+                  <span class="alg-einheit">Personen</span>
+                </span>
+              </label>
+              <label class="alg-feld">
+                <span class="alg-label">IBAN</span>
+                <span class="alg-hint">Wohin ausbezahlt wird – Prüfziffer wird kontrolliert</span>
+                <span class="alg-eingabe">
+                  <input type="text" class="form-control form-control-sm" id="pro-neu-iban" maxlength="42" autocomplete="off" spellcheck="false" placeholder="AT61 1904 3002 3457 3201" />
+                </span>
+              </label>
+            </div>
+            <div class="aktionen-zeile">
+              <button type="button" class="btn btn-primary btn-sm" id="pro-neu-anlegen"><i class="ti ti-user-plus me-1" aria-hidden="true"></i>Promoter anlegen</button>
+              <span class="settings-note" id="pro-neu-hinweis" style="margin:0;"></span>
+            </div>
+          </div>
+
+          <div class="subsection">
+            <h3 class="subsection-title">Promoter &amp; geworbene Personen</h3>
+            <p class="subsection-sub">„Details“ klappt Limit, IBAN, Auszahlung und die Liste aller über diesen Code Geworbenen auf. Offen = erwirtschaftet − ausbezahlt; negativ nur, wenn mehr als ausbezahlt eingetragen ist, als erwirtschaftet wurde.</p>
+            <div id="pro-liste"></div>
+            <p class="settings-note" id="pro-liste-hinweis"></p>
           </div>
         </div>
 

@@ -74,8 +74,8 @@
     'screen_besuch', 'friendship', 'account', 'bank_connection', 'chat_member', 'university', 'chat',
     'message', 'expense', 'onboarding_event', 'notification_settings', 'report',
     'audit_log', 'dashboard_bearbeitet', 'app_config', 'einladung_gesendet', 'person_status',
-    'schatten_mitglied', 'einladung_empfaenger', 'kontakte_bei_registrierung',
-    'bank_flow_event', 'drops', 'eingang', 'category', 'bonus_mitglied',
+    'schatten_mitglied', 'einladung_empfaenger', 'kontakte_bei_registrierung', 'bonus_mitglied',
+    'promoter_geworben', 'bank_flow_event', 'drops', 'eingang', 'category',
   ];
 
   // Höchstens 4 Abfragen gleichzeitig – schont Datenbank und Handy-Netz.
@@ -147,6 +147,7 @@
     'GET /kosten.json': () => ladeKosten(),
     'GET /trennung.json': () => rpc('dashboard_trennung'),
     'GET /bonus.json': () => rpc('dashboard_bonus'),
+    'GET /promoter.json': () => rpc('dashboard_promoter'),
     'GET /nutzerliste.json': () => rpc('dashboard_nutzerliste'),
     'POST /trennung-vorschau': (body) => rpc('dashboard_trennung_vorschau', { p_tage: body.inaktiv_tage }),
     // Es gibt keinen Zwischenspeicher mehr: Neu laden = Seite neu laden.
@@ -157,8 +158,14 @@
     'POST /speichere-trennung': (body) => rpc('dashboard_speichere_trennung', { p_tage: ganzzahl(body.inaktiv_tage) }),
     'POST /simuliere-trennung': () => simuliereTrennung(),
     'POST /bonus-einstellungen': (body) => rpc('dashboard_bonus_einstellungen', { p_werte: body }),
+    'POST /bonus-ausbezahlt': (body) => rpc('dashboard_bonus_ausbezahlt', { p_chat_id: body.chat_id, p_person_id: body.person_id, p_ausbezahlt: body.ausbezahlt }),
     'POST /bonus-ablaufen': () => rpc('dashboard_bonus_ablaufen'),
-    'POST /bonus-ausbezahlt': (body) => rpc('dashboard_bonus_ausbezahlt', { p_chat_id: body.chat_id, p_ausbezahlt: body.ausbezahlt }),
+    'POST /promoter-anlegen': (body) => rpc('dashboard_promoter_anlegen', {
+      p_name: body.name, p_code: body.code, p_max_geworbene: ganzzahl(body.max_geworbene), p_iban: body.iban,
+    }),
+    'POST /promoter-aendern': ({ promoter_id, ...werte }) => rpc('dashboard_promoter_aendern', { p_promoter_id: promoter_id, p_werte: werte }),
+    'POST /promoter-preise': (body) => rpc('dashboard_promoter_preise', { p_werte: body }),
+    'POST /promoter-programm': (body) => rpc('dashboard_promoter_programm', { p_aktiv: body.aktiv }),
   };
 
   function antwort(status, inhalt) {
